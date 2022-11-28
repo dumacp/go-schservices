@@ -1,0 +1,31 @@
+syntax = "proto3";
+package messages;
+
+option go_package = "github.com/dumacp/go-schservices/pkg/messages";
+
+message DiscoverSch {
+	string id = 1;
+    string addr = 2;
+}
+
+message DiscoverResponseSch {
+	string id = 1;
+    string addr = 2;
+}
+
+message SubscribeSch {
+	string id = 1;
+    string addr = 2;
+}
+
+message ExternalServiceSch {
+	int64 Timestamp = 1;
+    	int64 Timeservice = 2;
+    	int32 Itininerary = 3;
+    	int32 Route = 4;
+}
+
+message RequestStatusSch {}
+message StatusSch {
+    int32 state = 1;
+}

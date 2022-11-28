@@ -1,0 +1,23 @@
+package app
+
+import "flag"
+
+func init() {
+	flag.StringVar(&Url, "url", "https://fleet.nebulae.com.co", "platform URL")
+	flag.StringVar(&Username, "user", "embedd.device@nebulae.com.co", "platform user name")
+	flag.StringVar(&PassCode, "Passcode", "uno.2.tres", "platform user passcode")
+	flag.StringVar(&KeycloakUrl, "keycloakUrl", "https://fleet.nebulae.com.co/auth", "platform keycloakUrl")
+	flag.StringVar(&Realm, "realm", "FLEET", "platform realm")
+	flag.StringVar(&ClientID, "clientID", "devices", "platform clientID")
+	flag.StringVar(&ClientSecret, "clientSecret", "30fd7376-76c7-4611-a478-9ab21599df58", "platform ClientSecret")
+}
+
+var (
+	Url          = ""
+	PassCode     = ""
+	Username     = ""
+	Realm        = ""
+	ClientID     = ""
+	ClientSecret = ""
+	KeycloakUrl  = ""
+)
