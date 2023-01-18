@@ -1,6 +1,7 @@
 package restclient
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"time"
@@ -89,7 +90,11 @@ func (a *Actor) Receive(ctx actor.Context) {
 				return err
 			}
 			logs.LogBuild.Printf("Get response, GetServices: %s", resp)
-			if ctx.Sender() != nil {
+			sender := ctx.Sender()
+			if sender == nil {
+				sender = ctx.Parent()
+			}
+			if sender != nil {
 				data := make([]byte, len(resp))
 				copy(data, resp)
 				ctx.Respond(&app.MsgServiceData{Data: data})
@@ -190,5 +195,25 @@ func (a *Actor) Receive(ctx actor.Context) {
 			return
 		}
 
+	}
+}
+
+func tick(ctx context.Context, ctxactor actor.Context, timeout time.Duration) {
+	rootctx := ctxactor.ActorSystem().Root
+	self := ctxactor.Self()
+	t0_0 := time.NewTimer(1000 * time.Millisecond)
+	defer t0_0.Stop()
+	t1 := time.NewTicker(timeout)
+	defer t1.Stop()
+
+	for {
+		select {
+		case <-t0_0.C:
+			rootctx.Send(self, &app.MsgGetServiceData{})
+		case <-t1.C:
+			rootctx.Send(self, &app.MsgGetServiceData{})
+		case <-ctx.Done():
+			return
+		}
 	}
 }

@@ -33,8 +33,10 @@ type Actor struct {
 	realm            string
 	url              string
 	keyUrl           string
+	keyValue         string
 	conn             *nats.Conn
 	cancel           func()
+	cancelKV         func()
 	funcRetryTimeout func() bool
 }
 
@@ -47,10 +49,11 @@ type JwtConf struct {
 	KeycloakURL  string
 }
 
-func NewActor(id, url string, jwtConf *JwtConf) actor.Actor {
+func NewActor(id, url, keyValue string, jwtConf *JwtConf) actor.Actor {
 	a := &Actor{}
 	a.id = id
 	a.url = url
+	a.keyValue = keyValue
 	if jwtConf != nil {
 		a.keyUrl = jwtConf.KeycloakURL
 		a.clientid = jwtConf.ClientID
@@ -73,10 +76,16 @@ func (a *Actor) Receive(ctx actor.Context) {
 			[]time.Duration{0 * time.Second, 10 * time.Second, 30 * time.Second, 60 * time.Second, 60 * time.Second, 180 * time.Second})
 		ctx.Send(ctx.Self(), &MsgStartConn{})
 		contxt, cancel := context.WithCancel(context.TODO())
-		tick(contxt, ctx, 10*time.Second)
+		go tick(contxt, ctx, 10*time.Second)
 		a.cancel = cancel
 
 	case *actor.Stopping:
+		if a.cancel != nil {
+			a.cancel()
+		}
+		if a.cancelKV != nil {
+			a.cancelKV()
+		}
 	case *MsgStartConn:
 		if a.conn != nil || !a.funcRetryTimeout() {
 			break
@@ -90,19 +99,44 @@ func (a *Actor) Receive(ctx actor.Context) {
 				}
 				opts = append(opts, jwtOpt)
 			}
+
+			conn, err := NewConn(a.url, opts...)
+			if err != nil {
+				return fmt.Errorf("failed NewConn: %w", err)
+			}
+			a.conn = conn
+
+			jsctx, err := a.conn.JetStream()
+			if err != nil {
+				return fmt.Errorf("failed NewConn: %w", err)
+			}
+			kv, err := jsctx.KeyValue(a.keyValue)
+			if err != nil {
+				return fmt.Errorf("failed NewConn: %w", err)
+			}
+
+			contxt, cancel := context.WithCancel(context.TODO())
+			go watch(contxt, ctx, a.id, kv)
+			a.cancelKV = cancel
+
+			conn.SetDisconnectErrHandler(func(c *nats.Conn, err error) {
+				if !c.IsConnected() {
+					logs.LogWarn.Printf("error nats connection: %s", err)
+					// TODO: verify if close channel is internal in package
+					// cancel()
+				}
+			})
+
 			return nil
+
 		}(); err != nil {
 			logs.LogWarn.Println(err)
+			if a.conn != nil {
+				a.conn.Close()
+			}
 			a.conn = nil
 			break
 		}
-		conn, err := NewConn(a.url, opts...)
-		if err != nil {
-			logs.LogWarn.Println(err)
-			a.conn = nil
-			break
-		}
-		a.conn = conn
 
 	case *app.MsgGetServiceData:
 		if a.conn != nil {
@@ -211,6 +245,33 @@ func tick(ctx context.Context, ctxactor actor.Context, timeout time.Duration) {
 		select {
 		case <-t0.C:
 			rootctx.Send(self, &MsgStartConn{})
+		case <-ctx.Done():
+			return
+		}
+	}
+}
+
+func watch(ctx context.Context, ctxactor actor.Context, key string, ks nats.KeyValue) {
+	rootctx := ctxactor.ActorSystem().Root
+	self := ctxactor.Self()
+
+	watcher, err := ks.Watch(key)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	updates := watcher.Updates()
+	defer watcher.Stop()
+
+	for {
+		select {
+		case v, ok := <-updates:
+			if !ok {
+				fmt.Printf("KV updates closed")
+				return
+			}
+			rootctx.Send(self, &app.MsgServiceData{
+				Data: v.Value()})
 		case <-ctx.Done():
 			return
 		}

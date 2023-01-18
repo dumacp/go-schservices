@@ -119,11 +119,6 @@ func (a *Actor) Receive(ctx actor.Context) {
 			}
 		}()
 	case *MsgGetServices:
-		if msg.VerifyNil {
-			if len(a.liveExecutedServices) > 0 || len(a.scheduledServices) > 0 {
-				break
-			}
-		}
 		if a.pidGetData == nil {
 			break
 		}
@@ -147,11 +142,6 @@ func (a *Actor) Receive(ctx actor.Context) {
 			fmt.Printf("GetServices err: %s\n", err)
 		}
 	case *MsgGetScheduledServices:
-		if msg.VerifyNil {
-			if len(a.scheduledServices) > 0 {
-				break
-			}
-		}
 		if a.pidGetData == nil {
 			break
 		}
@@ -195,11 +185,6 @@ func (a *Actor) Receive(ctx actor.Context) {
 			}
 		}
 	case *MsgGetLiveExecutedServices:
-		if msg.VerifyNil {
-			if len(a.liveExecutedServices) > 0 {
-				break
-			}
-		}
 		if a.pidGetData == nil {
 			break
 		}
@@ -292,23 +277,15 @@ func (a *Actor) Receive(ctx actor.Context) {
 func tick(ctx context.Context, ctxactor actor.Context, timeout time.Duration) {
 	rootctx := ctxactor.ActorSystem().Root
 	self := ctxactor.Self()
-	t0_0 := time.NewTimer(1000 * time.Millisecond)
-	defer t0_0.Stop()
 	t0_1 := time.NewTimer(3000 * time.Millisecond)
 	defer t0_1.Stop()
-	t1 := time.NewTicker(timeout)
-	defer t1.Stop()
 	t2 := time.NewTicker(30 * time.Second)
 	defer t2.Stop()
 
 	for {
 		select {
-		case <-t0_0.C:
-			rootctx.Send(self, &MsgGetServices{})
 		case <-t0_1.C:
 			rootctx.Send(self, &MsgTriggerServices{})
-		case <-t1.C:
-			rootctx.Send(self, &MsgGetServices{})
 		case <-t2.C:
 			rootctx.Send(self, &MsgTriggerServices{})
 
