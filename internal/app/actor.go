@@ -17,16 +17,13 @@ import (
 var TIMEOUT = 3 * time.Minute
 
 type Actor struct {
-	liveService                       Service
-	scheduledServices                 []Service
-	liveExecutedServices              []Service
-	evs                               *eventstream.EventStream
-	pidGetData                        *actor.PID
-	propsGetData                      *actor.Props
-	cancel                            func()
-	id                                string
-	lastTimestampScheduledServices    int64
-	lastTimestampLiveExecutedServices int64
+	liveService       *messages.ScheduleService
+	scheduledServices []*messages.ScheduleService
+	evs               *eventstream.EventStream
+	pidGetData        *actor.PID
+	propsGetData      *actor.Props
+	cancel            func()
+	id                string
 }
 
 func NewActor(id string, props *actor.Props) (actor.Actor, error) {
@@ -53,7 +50,6 @@ func (a *Actor) Receive(ctx actor.Context) {
 		ctx.Self().GetId(), ctx.Message(), ctx.Message(), ctx.Sender())
 	switch msg := ctx.Message().(type) {
 	case *actor.Started:
-		a.liveService = Service{}
 		pid, err := ctx.SpawnNamed(a.propsGetData, a.id)
 		if err != nil {
 			time.Sleep(3 * time.Second)
@@ -67,11 +63,6 @@ func (a *Actor) Receive(ctx actor.Context) {
 	case *actor.Stopping:
 		a.cancel()
 	case *MsgTick:
-	case *MsgKeycloak:
-		if ctx.Sender() != nil {
-			a.pidGetData = ctx.Sender()
-		}
-		ctx.Send(ctx.Self(), &MsgGetServices{})
 	case *messages.DiscoverSch:
 		if len(msg.GetAddr()) <= 0 || len(msg.GetId()) <= 0 {
 			break
@@ -86,8 +77,9 @@ func (a *Actor) Receive(ctx actor.Context) {
 
 		func() {
 			// fmt.Println("eval newest live")
-			if newestService, ok := Next(a.liveExecutedServices, time.Now().Add(-1*time.Minute), time.Now().Add(1*time.Minute)); ok {
-				if !a.liveService.Same(newestService) {
+			if newestService, ok := Next(a.scheduledServices, time.Now().Add(-1*time.Minute), time.Now().Add(1*time.Minute)); ok {
+				if a.liveService.GetId() != newestService.GetId() {
+					fmt.Printf("/////////////////////// id: %s !== %s\n", a.liveService.GetId(), newestService.GetId())
 					ctx.Send(ctx.Self(), &MsgPublishServices{
 						Data: newestService,
 					})
@@ -95,138 +87,29 @@ func (a *Actor) Receive(ctx actor.Context) {
 				}
 				return
 			}
-			// fmt.Println("eval newest schedule")
-			if newestService, ok := Next(a.scheduledServices, time.Now(), time.Now().Add(3*time.Minute)); ok {
-				if !a.liveService.Same(newestService) {
-					ctx.Send(ctx.Self(), &MsgGetLiveExecutedServices{})
-					// fmt.Println("publish newest schedule")
-				}
-			}
-
-			newestScheduleService, _ := Newest(a.scheduledServices)
-			newestLiveService, _ := Newest(a.liveExecutedServices)
-
-			// fmt.Println("eval newest all")
-			if newestService, ok := Next([]Service{newestScheduleService, newestLiveService},
-				time.Now().Add(-120*time.Minute), time.Now().Add(-2*time.Minute)); ok {
-				if !a.liveService.Same(newestService) {
-					ctx.Send(ctx.Self(), &MsgPublishServices{
-						Data: newestService,
-					})
-					// fmt.Println("publish newest all")
-				}
-				return
-			}
 		}()
-	case *MsgGetServices:
-		if a.pidGetData == nil {
-			break
-		}
-		ctx.Request(a.pidGetData, &MsgGetServiceData{})
-	case *MsgServiceData:
-		if err := func() error {
-			logs.LogBuild.Printf("Get response, GetServices: %s", msg.Data)
-			result := new(Services)
-			if err := json.Unmarshal(msg.Data, result); err != nil {
-				return err
-			}
-			if result.LastTimestampLiveExecutedServices > a.lastTimestampLiveExecutedServices {
-				ctx.Send(ctx.Self(), &MsgGetLiveExecutedServices{})
-			}
-			if result.LastTimestampScheduledServices > a.lastTimestampScheduledServices {
-				ctx.Send(ctx.Self(), &MsgGetScheduledServices{})
-			}
-			return nil
-		}(); err != nil {
-			logs.LogError.Println(err)
-			fmt.Printf("GetServices err: %s\n", err)
-		}
-	case *MsgGetScheduledServices:
-		if a.pidGetData == nil {
-			break
-		}
-		ctx.Request(a.pidGetData, &MsgGetScheduleServiceData{})
 	case *MsgScheduleServiceData:
 		if err := func() error {
-			logs.LogBuild.Printf("Get response, GetScheduledServices: %s", msg.Data)
-			result := new(Services)
-			if err := json.Unmarshal(msg.Data, result); err != nil {
-				return err
-			}
-			a.lastTimestampScheduledServices = result.LastTimestampScheduledServices
-			if len(result.ScheduledServices) <= 0 {
+			logs.LogBuild.Printf("Get response, GetScheduledServices: %v", msg.Data)
+
+			if len(msg.Data) <= 0 {
 				return errors.New("error empty ScheduledServices result")
 			}
-			sort.Slice(result.ScheduledServices, func(i, j int) bool {
-				return result.ScheduledServices[j].Timestamp < result.ScheduledServices[i].Timestamp
+			sort.Slice(msg.Data, func(i, j int) bool {
+				return msg.Data[j].GetScheduleDateTime() < msg.Data[i].GetScheduleDateTime()
 			})
-			a.scheduledServices = make([]Service, 0)
-			for _, v := range result.ScheduledServices {
-				if (v == Service{}) {
-					continue
-				}
-				if v.TimeService <= v.Timestamp {
-					v.TimeService = v.Timestamp + 120*60*1*1000 // 120 minutos
-				}
-				a.scheduledServices = append(a.scheduledServices, v)
-				if v.Timestamp < time.Now().Add(-24*time.Hour).UnixMilli() {
-					break
-				}
-			}
+
+			a.scheduledServices = msg.Data
 			return nil
 		}(); err != nil {
 			logs.LogWarn.Println(err)
 			fmt.Printf("GetScheduledServices err: %s\n", err)
 			return
 		}
+
 		if len(a.scheduledServices) > 0 {
 			if data, err := json.Marshal(a.scheduledServices); err == nil {
 				logs.LogInfo.Printf("ScheduledServices: %s", data)
-			}
-		}
-	case *MsgGetLiveExecutedServices:
-		if a.pidGetData == nil {
-			break
-		}
-		ctx.Request(a.pidGetData, &MsgGetLiveServiceData{})
-	case *MsgLiveServiceData:
-		if err := func() error {
-			logs.LogBuild.Printf("Get response, GetLiveExecutedServices: %s", msg.Data)
-			result := new(Services)
-			if err := json.Unmarshal(msg.Data, result); err != nil {
-				return err
-			}
-			a.lastTimestampLiveExecutedServices = result.LastTimestampLiveExecutedServices
-			if len(result.LiveExecutedServices) <= 0 {
-				return errors.New("error empty LiveExecutedServices result")
-			}
-
-			sort.Slice(result.LiveExecutedServices, func(i, j int) bool {
-				return result.LiveExecutedServices[j].Timestamp < result.LiveExecutedServices[i].Timestamp
-			})
-
-			a.liveExecutedServices = make([]Service, 0)
-			for _, v := range result.LiveExecutedServices {
-				if (v == Service{}) {
-					continue
-				}
-				if v.TimeService <= v.Timestamp {
-					v.TimeService = v.Timestamp + 120*60*1*1000 // 120 minutos
-				}
-				a.liveExecutedServices = append(a.liveExecutedServices, v)
-				if v.Timestamp < time.Now().Add(-24*time.Hour).UnixMilli() {
-					break
-				}
-			}
-			return nil
-		}(); err != nil {
-			logs.LogWarn.Println(err)
-			fmt.Printf("GetLiveExecutedServices err: %s\n", err)
-			return
-		}
-		if len(a.liveExecutedServices) > 0 {
-			if data, err := json.Marshal(a.liveExecutedServices); err == nil {
-				logs.LogInfo.Printf("LiveExecutedServices: %s", data)
 			}
 		}
 	case *messages.SubscribeSch:
@@ -239,24 +122,15 @@ func (a *Actor) Receive(ctx actor.Context) {
 			a.evs = eventstream.NewEventStream()
 		}
 		subscribeServices(ctx, a.evs)
-		if a.liveService.Valid() && ctx.Sender() != nil {
-			ctx.Send(ctx.Sender(), &messages.ExternalServiceSch{
-				Timestamp:   a.liveService.Timestamp,
-				Timeservice: a.liveService.TimeService,
-				Itininerary: int32(a.liveService.Itinerary),
-				Route:       int32(a.liveService.Ruta),
-			})
+		if Valid(a.liveService) && ctx.Sender() != nil {
+			svc := a.liveService
+			ctx.Send(ctx.Sender(), &svc)
 		}
 	case *MsgPublishServices:
 		if a.evs != nil {
-			fmt.Printf("%s: publish service: %v\n", time.Now().Format("15:04:05.000"), msg.Data)
-			fmt.Printf("%s: before service: %v\n", time.Now().Format("15:04:05.000"), a.liveService)
-			a.evs.Publish(&messages.ExternalServiceSch{
-				Timestamp:   msg.Data.Timestamp,
-				Timeservice: msg.Data.TimeService,
-				Itininerary: int32(msg.Data.Itinerary),
-				Route:       int32(msg.Data.Ruta),
-			})
+			// fmt.Printf("%s: publish service: %v\n", time.Now().Format("15:04:05.000"), msg.Data)
+			// fmt.Printf("%s: before service: %v\n", time.Now().Format("15:04:05.000"), a.liveService)
+			a.evs.Publish(a.liveService)
 		}
 		fmt.Printf("%s: publish service: %v\n", time.Now().Format("15:04:05.000"), msg.Data)
 		a.liveService = msg.Data

@@ -1,86 +1,87 @@
 package app
 
 import (
-	"encoding/json"
 	"fmt"
 	"testing"
 	"time"
 
 	"github.com/asynkron/protoactor-go/actor"
+	"github.com/dumacp/go-schservices/pkg/messages"
 )
 
-var t = time.Now()
-
 func DataTest(ctx actor.Context) {
+	fmt.Printf("message in test: %s, %T\n", ctx.Message(), ctx.Message())
 	switch ctx.Message().(type) {
-	case *MsgGetServiceData:
-		tl := t.UnixMilli()
-		services := Services{
-			DeviceID:                          "NE-RC9-2957",
-			LastTimestampScheduledServices:    tl,
-			LastTimestampLiveExecutedServices: tl,
-		}
-		data_services, err := json.Marshal(&services)
-		if err != nil {
-			fmt.Println(err)
-			break
-		}
-		data := []byte(data_services)
-		if ctx.Sender() != nil {
-			ctx.Respond(&MsgServiceData{
-				Data: data,
-			})
-		}
-	case *MsgGetLiveServiceData:
-		tl := t.Add(1 * time.Minute).UnixMilli()
-		services := Services{
-			DeviceID: "NE-RC9-2957",
-			LiveExecutedServices: []Service{
-				{
-					Timestamp:   tl,
-					TimeService: tl + 2*60*60*1000,
-					Ruta:        23,
-					Itinerary:   26,
-				},
-			},
-			LastTimestampScheduledServices:    0,
-			LastTimestampLiveExecutedServices: tl,
-		}
-		data_services, err := json.Marshal(&services)
-		if err != nil {
-			fmt.Println(err)
-			break
-		}
-		data := []byte(data_services)
-		if ctx.Sender() != nil {
-			ctx.Respond(&MsgLiveServiceData{
-				Data: data,
-			})
+	case *actor.Started:
+		if ctx.Parent() != nil {
+			ctx.RequestWithCustomSender(ctx.Self(), &MsgGetScheduleServiceData{}, ctx.Parent())
 		}
 	case *MsgGetScheduleServiceData:
-		tl := t.Add(1 * time.Minute).UnixMilli()
-		services := Services{
-			DeviceID: "NE-RC9-2957",
-			ScheduledServices: []Service{
-				{
-					Timestamp:   tl,
-					TimeService: tl + 2*60*60*1000,
-					Ruta:        23,
-					Itinerary:   25,
+		services := []*messages.ScheduleService{
+			{
+				Id:               "1",
+				State:            messages.State_READY,
+				OrganizationId:   "1-2-3",
+				ScheduleDateTime: time.Now().Add(-10 * time.Second).UnixMilli(),
+				Itinerary: &messages.Itinerary{
+					Id:   "1-1",
+					Name: "ITI-1-1",
 				},
+				Route: &messages.Route{
+					Id:   "1",
+					Code: "111a",
+					Name: "RUTA-1",
+				},
+				Driver: &messages.Driver{
+					Id:       "000",
+					Fullname: "test test",
+				},
+				DriverIds: []string{"000", "111", "222"},
 			},
-			LastTimestampScheduledServices:    tl,
-			LastTimestampLiveExecutedServices: tl,
+			{
+				Id:               "2",
+				State:            messages.State_READY,
+				OrganizationId:   "1-2-3",
+				ScheduleDateTime: time.Now().Add(-40 * time.Minute).UnixMilli(),
+				Itinerary: &messages.Itinerary{
+					Id:   "1-1",
+					Name: "ITI-1-2",
+				},
+				Route: &messages.Route{
+					Id:   "1",
+					Code: "111a",
+					Name: "RUTA-1",
+				},
+				Driver: &messages.Driver{
+					Id:       "000",
+					Fullname: "test test",
+				},
+				DriverIds: []string{"000", "111", "222"},
+			},
+			{
+				Id:               "3",
+				State:            messages.State_READY,
+				OrganizationId:   "1-2-3",
+				ScheduleDateTime: time.Now().Add(30 * time.Second).UnixMilli(),
+				Itinerary: &messages.Itinerary{
+					Id:   "1-1",
+					Name: "ITI-1-3",
+				},
+				Route: &messages.Route{
+					Id:   "1",
+					Code: "111a",
+					Name: "RUTA-1",
+				},
+				Driver: &messages.Driver{
+					Id:       "000",
+					Fullname: "test test",
+				},
+				DriverIds: []string{"000", "111", "222"},
+			},
 		}
-		data_services, err := json.Marshal(&services)
-		if err != nil {
-			fmt.Println(err)
-			break
-		}
-		data := []byte(data_services)
 		if ctx.Sender() != nil {
 			ctx.Respond(&MsgScheduleServiceData{
-				Data: data,
+				Data: services,
 			})
 		}
 	}
@@ -125,7 +126,7 @@ func TestNewActor(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			for _, msg := range tt.args.messages {
 				rootctx.RequestFuture(tt.args.pid, msg, time.Millisecond*900).Result()
-				time.Sleep(30 * time.Second)
+				time.Sleep(20 * time.Second)
 			}
 		})
 	}

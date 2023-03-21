@@ -14,6 +14,7 @@ import (
 	"github.com/dumacp/go-logs/pkg/logs"
 	"github.com/dumacp/go-schservices/internal/app"
 	"github.com/dumacp/go-schservices/internal/pubsub"
+
 	"github.com/dumacp/go-schservices/internal/restclient"
 	"github.com/dumacp/go-schservices/pkg/schservices"
 )

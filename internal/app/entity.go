@@ -4,6 +4,8 @@ import (
 	"math"
 	"sort"
 	"time"
+
+	"github.com/dumacp/go-schservices/pkg/messages"
 )
 
 type Services struct {
@@ -25,14 +27,11 @@ func (s Service) Newer(o *Service) bool {
 	return s.Timestamp > o.Timestamp
 }
 
-func (s Service) Valid() bool {
-	if s.Itinerary <= 0 {
+func Valid(s *messages.ScheduleService) bool {
+	if len(s.GetId()) <= 0 {
 		return false
 	}
-	if time.Until(time.UnixMilli(s.Timestamp)) >= 0 {
-		return false
-	}
-	if s.Timestamp > s.TimeService {
+	if s.GetScheduleDateTime() > 0 {
 		return false
 	}
 	return true
@@ -46,17 +45,17 @@ func (s Service) Same(o Service) bool {
 	return false
 }
 
-func Next(ss []Service, from, to time.Time) (Service, bool) {
-	var result Service
+func Next(ss []*messages.ScheduleService, from, to time.Time) (*messages.ScheduleService, bool) {
+	var result *messages.ScheduleService
 	mem := float64(math.MaxFloat64)
-	for _, v := range ss {
-		center := math.Pow(float64(v.Timestamp-time.Now().UnixMilli()), 2)
+	for i := range ss {
+		center := math.Pow(float64(ss[i].GetScheduleDateTime()-time.Now().UnixMilli()), 2)
 		if center < mem {
 			mem = center
-			result = v
+			result = ss[i]
 		}
 	}
-	t := time.UnixMilli(result.Timestamp)
+	t := time.UnixMilli(result.GetScheduleDateTime())
 	// fmt.Printf("timestamp: %s\n", t)
 	// fmt.Printf("before: %v, %s\n", t.After(from), from)
 	// fmt.Printf("after: %v, %s\n", t.Before(to), to)
@@ -67,23 +66,24 @@ func Next(ss []Service, from, to time.Time) (Service, bool) {
 	return result, false
 }
 
-func Newest(ss []Service) (Service, bool) {
+func Newest(ss []messages.ScheduleService) (*messages.ScheduleService, bool) {
 	sort.Slice(ss, func(i, j int) bool {
-		return ss[i].Timestamp < ss[j].Timestamp
+		return ss[i].GetScheduleDateTime() < ss[j].GetScheduleDateTime()
 	})
 
-	var last Service
-	for _, v := range ss {
-		if v.Timestamp > time.Now().Add(3*time.Minute).UnixMilli() && (last != Service{}) {
+	var last *messages.ScheduleService
+	for i := range ss {
+		v := ss[i]
+		if v.GetScheduleDateTime() > time.Now().Add(3*time.Minute).UnixMilli() && (last != nil) {
 			return last, true
 		}
-		last = v
+		last = &v
 	}
 	if len(ss) > 0 {
-		last := ss[len(ss)-1]
-		if last.Timestamp <= time.Now().Add(3*time.Minute).UnixMilli() && (last != Service{}) {
+		last := &ss[len(ss)-1]
+		if last.GetScheduleDateTime() <= time.Now().Add(3*time.Minute).UnixMilli() && (last != nil) {
 			return last, true
 		}
 	}
-	return Service{}, false
+	return nil, false
 }

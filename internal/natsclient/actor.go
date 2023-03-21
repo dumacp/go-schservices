@@ -2,6 +2,7 @@ package nastclient
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"time"
 
@@ -9,6 +10,7 @@ import (
 	"github.com/dumacp/go-logs/pkg/logs"
 	"github.com/dumacp/go-schservices/internal/app"
 	"github.com/dumacp/go-schservices/internal/utils"
+	"github.com/dumacp/go-schservices/pkg/messages"
 	"github.com/nats-io/nats.go"
 )
 
@@ -22,9 +24,6 @@ const (
 const TIMEOUT = 3 * time.Minute
 
 type Actor struct {
-	lastGetService   time.Time
-	lastGetLive      time.Time
-	lastGetSchedule  time.Time
 	id               string
 	userHttp         string
 	passHttp         string
@@ -35,6 +34,7 @@ type Actor struct {
 	keyUrl           string
 	keyValue         string
 	conn             *nats.Conn
+	svcs             *messages.ScheduleServices
 	cancel           func()
 	cancelKV         func()
 	funcRetryTimeout func() bool
@@ -68,7 +68,7 @@ func NewActor(id, url, keyValue string, jwtConf *JwtConf) actor.Actor {
 func (a *Actor) Receive(ctx actor.Context) {
 	fmt.Printf("Message arrived in %s: %s, %T, %s\n",
 		ctx.Self().GetId(), ctx.Message(), ctx.Message(), ctx.Sender())
-	switch ctx.Message().(type) {
+	switch msg := ctx.Message().(type) {
 	case *actor.Started:
 
 		logs.LogInfo.Printf("started \"%s\", %v", ctx.Self().GetId(), ctx.Self())
@@ -86,6 +86,11 @@ func (a *Actor) Receive(ctx actor.Context) {
 		if a.cancelKV != nil {
 			a.cancelKV()
 		}
+	case *MsgVerifyConn:
+		if a.conn != nil || !a.funcRetryTimeout() {
+			break
+		}
+		ctx.Send(ctx.Self(), &MsgStartConn{})
 	case *MsgStartConn:
 		if a.conn != nil || !a.funcRetryTimeout() {
 			break
@@ -138,100 +143,29 @@ func (a *Actor) Receive(ctx actor.Context) {
 			break
 		}
 
-	case *app.MsgGetServiceData:
-		if a.conn != nil {
+	case *app.MsgGetScheduleServiceData:
+		if a.svcs != nil && ctx.Sender() != nil {
+			svcs := make([]*messages.ScheduleService, 0)
+			for i := range a.svcs.GetScheduleServices() {
+				svcs = append(svcs, a.svcs.GetScheduleServices()[i])
+			}
+			ctx.Respond(&app.MsgScheduleServiceData{
+				Data: svcs,
+			})
+		}
+	case *MsgServiceData:
+		svcs := new(messages.ScheduleServices)
+		err := json.Unmarshal(msg.Data, svcs)
+		if err != nil {
+			logs.LogWarn.Printf("MsgServiceData error (%s): %s", msg.Data, err)
 			break
 		}
-		if err := func() error {
-			if time.Since(a.lastGetService) < 30*time.Second {
-				fmt.Println("last GetSchedule was before 30 seconds")
-				return nil
+		if a.svcs == nil || svcs.GetVersion() != a.svcs.GetVersion() {
+			a.svcs = svcs
+			if ctx.Parent() != nil {
+				ctx.RequestWithCustomSender(ctx.Self(), svcs, ctx.Parent())
 			}
-
-			resp := make([]byte, 0)
-
-			jsctx, err := a.conn.JetStream()
-			if err != nil {
-				return err
-			}
-
-			_, err = jsctx.KeyValue("Services")
-			if err != nil {
-				return err
-			}
-
-			logs.LogBuild.Printf("Get response, GetServices: %s", resp)
-			if ctx.Sender() != nil {
-				data := make([]byte, len(resp))
-				copy(data, resp)
-				ctx.Respond(&app.MsgServiceData{Data: data})
-			}
-			a.lastGetService = time.Now()
-			return nil
-
-		}(); err != nil {
-			logs.LogError.Println(err)
-			fmt.Printf("GetServices err: %s\n", err)
-			if a.conn != nil {
-				a.conn.Close()
-			}
-			a.conn = nil
-			return
 		}
-	case *app.MsgGetScheduleServiceData:
-		if err := func() error {
-			if time.Since(a.lastGetSchedule) < 30*time.Second {
-				fmt.Println("last GetSchedule was before 30 seconds")
-				return nil
-			}
-
-			resp := make([]byte, 0)
-
-			logs.LogBuild.Printf("Get response, GetServices: %s", resp)
-			if ctx.Sender() != nil {
-				data := make([]byte, len(resp))
-				copy(data, resp)
-				ctx.Respond(&app.MsgScheduleServiceData{Data: data})
-			}
-			a.lastGetSchedule = time.Now()
-			return nil
-
-		}(); err != nil {
-			logs.LogError.Println(err)
-			fmt.Printf("GetServices err: %s\n", err)
-			if a.conn != nil {
-				a.conn.Close()
-			}
-			a.conn = nil
-			return
-		}
-	case *app.MsgGetLiveServiceData:
-		if err := func() error {
-			if time.Since(a.lastGetLive) < 30*time.Second {
-				fmt.Println("last GetSchedule was before 30 seconds")
-				return nil
-			}
-			resp := make([]byte, 0)
-
-			logs.LogBuild.Printf("Get response, GetServices: %s", resp)
-			if ctx.Sender() != nil {
-				data := make([]byte, len(resp))
-				copy(data, resp)
-				ctx.Respond(&app.MsgLiveServiceData{Data: data})
-			}
-			a.lastGetLive = time.Now()
-			return nil
-
-		}(); err != nil {
-			logs.LogError.Println(err)
-			fmt.Printf("GetServices err: %s\n", err)
-			if a.conn != nil {
-				a.conn.Close()
-			}
-			a.conn = nil
-			return
-		}
-
 	}
 }
 
@@ -244,7 +178,7 @@ func tick(ctx context.Context, ctxactor actor.Context, timeout time.Duration) {
 	for {
 		select {
 		case <-t0.C:
-			rootctx.Send(self, &MsgStartConn{})
+			rootctx.Send(self, &MsgVerifyConn{})
 		case <-ctx.Done():
 			return
 		}
@@ -270,8 +204,12 @@ func watch(ctx context.Context, ctxactor actor.Context, key string, ks nats.KeyV
 				fmt.Printf("KV updates closed")
 				return
 			}
-			rootctx.Send(self, &app.MsgServiceData{
-				Data: v.Value()})
+
+			if v != nil {
+				fmt.Printf("data: %v, %v\n", v.Revision(), v.Delta())
+				rootctx.Send(self, &MsgServiceData{
+					Data: v.Value()})
+			}
 		case <-ctx.Done():
 			return
 		}
