@@ -11,12 +11,7 @@ import (
 
 	"github.com/asynkron/protoactor-go/actor"
 	"github.com/asynkron/protoactor-go/remote"
-	"github.com/dumacp/go-logs/pkg/logs"
-	"github.com/dumacp/go-schservices/internal/app"
 	"github.com/dumacp/go-schservices/internal/pubsub"
-
-	"github.com/dumacp/go-schservices/internal/restclient"
-	"github.com/dumacp/go-schservices/pkg/schservices"
 )
 
 const (
@@ -71,30 +66,11 @@ func main() {
 	if len(User) <= 0 {
 		User = id
 	}
-
-	dataActor := restclient.NewActor(id, User, Passcode, Url, KeycloakUrl, Realm, Clientid, ClientSecret)
-	dataProps := actor.PropsFromFunc(dataActor.Receive)
-
-	appactor, err := app.NewActor(id, dataProps)
-	if err != nil {
-		logs.LogError.Fatalln(err)
-	}
-	appProps := actor.PropsFromFunc(appactor.Receive)
-	appPid, err := sys.Root.SpawnNamed(appProps, NAME_INSTANCE)
-	if err != nil {
-		logs.LogError.Fatalln(err)
-	}
-
-	if err := pubsub.Subscribe(schservices.DISCV_TOPIC, appPid, app.Discover); err != nil {
-		logs.LogError.Fatalln(err)
-	}
-
 	finish := make(chan os.Signal, 1)
 	signal.Notify(finish, syscall.SIGINT)
 	signal.Notify(finish, syscall.SIGTERM)
 
 	for range finish {
-		sys.Root.Poison(appPid)
 		time.Sleep(300 * time.Millisecond)
 		log.Print("Finish")
 		return
