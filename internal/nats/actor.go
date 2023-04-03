@@ -84,7 +84,7 @@ func (a *Actor) Receive(ctx actor.Context) {
 				Key:    a.id,
 			})
 		}
-	case *msgdbdata:
+	case *MsgDBdata:
 		var backup *gwiotmsg.KvEntryMessage
 		data, err := a.db.Get("current", "backup")
 		if err != nil {
@@ -96,7 +96,7 @@ func (a *Actor) Receive(ctx actor.Context) {
 			break
 		}
 		a.lastvalue = backup
-		a.evs.Publish(&msgrawdata{
+		a.evs.Publish(&MsgRawdata{
 			Payload: backup.Data,
 		})
 	case *gwiotmsg.KvEntryMessage:
@@ -104,13 +104,14 @@ func (a *Actor) Receive(ctx actor.Context) {
 			logs.LogWarn.Printf("same Rev in message: %d", msg.Rev)
 			break
 		}
+		a.lastvalue = msg
 		// TODO: select with bucket or key????
 		switch msg.Bucket {
 		case SUBJECT_SERVICESCH:
 			a.lastvalue = msg
 			data := make([]byte, len(msg.GetData()))
 			copy(data, msg.GetData())
-			a.evs.Publish(&msgrawdata{
+			a.evs.Publish(&MsgRawdata{
 				Payload: data,
 			})
 		}
@@ -118,7 +119,12 @@ func (a *Actor) Receive(ctx actor.Context) {
 		if ctx.Sender() == nil {
 			break
 		}
-		subscribe(ctx, a.evs)
+
+		delete(a.subscriptors, ctx.Sender().GetId())
+		a.subscriptors[ctx.Sender().GetId()] = subscribe(ctx, a.evs)
+		ctx.Respond(&MsgRawdata{
+			Payload: a.lastvalue.GetData(),
+		})
 	}
 }
 
@@ -139,7 +145,7 @@ func tick(contxt context.Context, ctx actor.Context, timeout time.Duration) {
 		case <-contxt.Done():
 			return
 		case <-initial.C:
-			ctxroot.Send(self, &msgdbdata{})
+			ctxroot.Send(self, &MsgDBdata{})
 			ctxroot.Send(self, &tickmsg{})
 		case <-ticker.C:
 			ctxroot.Send(self, &tickmsg{})

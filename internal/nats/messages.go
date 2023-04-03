@@ -1,7 +1,7 @@
 package nats
 
-type msgdbdata struct{}
-type msgrawdata struct {
+type MsgDBdata struct{}
+type MsgRawdata struct {
 	Payload []byte
 }
 type MsgSubscribe struct{}
