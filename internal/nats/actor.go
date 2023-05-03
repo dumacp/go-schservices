@@ -12,10 +12,10 @@ import (
 	"github.com/dumacp/go-gwiot/pkg/gwiotmsg"
 	"github.com/dumacp/go-gwiot/pkg/gwiotmsg/gwiot"
 	"github.com/dumacp/go-logs/pkg/logs"
+	"github.com/dumacp/go-params/internal/constan"
 	"github.com/dumacp/go-params/internal/database"
 	"github.com/dumacp/go-params/internal/messages"
 	"github.com/dumacp/go-params/internal/utils"
-	"github.com/dumacp/go-params/pkg/params"
 )
 
 const (
@@ -25,7 +25,7 @@ const (
 type Actor struct {
 	id             string
 	remoteAddress  string
-	propsDiscovery *actor.Props
+	actorDiscovery actor.Actor
 	pidNats        *actor.PID
 	pidDiscovery   *actor.PID
 	evs            *eventstream.EventStream
@@ -35,12 +35,12 @@ type Actor struct {
 	db             database.DBservice
 }
 
-func NewActor(id string, propsDiscovery *actor.Props) actor.Actor {
+func NewActor(id string, actorDiscovery actor.Actor) actor.Actor {
 	if len(id) == 0 {
 		id = utils.Hostname()
 	}
 	a := &Actor{id: id}
-	a.propsDiscovery = propsDiscovery
+	a.actorDiscovery = actorDiscovery
 	return a
 }
 
@@ -62,8 +62,8 @@ func (a *Actor) Receive(ctx actor.Context) {
 	switch msg := ctx.Message().(type) {
 	case *actor.Started:
 
-		if a.propsDiscovery != nil {
-			if pid, err := ctx.SpawnNamed(a.propsDiscovery, "discover-actor"); err != nil {
+		if a.actorDiscovery != nil {
+			if pid, err := ctx.SpawnNamed(actor.PropsFromFunc(a.actorDiscovery.Receive), "discover-actor"); err != nil {
 				time.Sleep(3 * time.Second)
 				logs.LogError.Panicf("spawn discover actor error: %s", err)
 			} else {
@@ -92,7 +92,7 @@ func (a *Actor) Receive(ctx actor.Context) {
 		if len(a.remoteAddress) <= 0 {
 			if a.pidDiscovery != nil {
 				disc := &gwiotmsg.Discovery{
-					Reply: params.TOPIC_REPLY,
+					Reply: constan.TOPIC_REPLY,
 				}
 				ctx.Request(a.pidDiscovery, disc)
 			}
@@ -110,7 +110,7 @@ func (a *Actor) Receive(ctx actor.Context) {
 			a.pidNats = pid
 
 			ctx.Request(a.pidNats, &gwiotmsg.WatchKeyValue{
-				Bucket: params.SUBJECT_PARAMS,
+				Bucket: constan.SUBJECT_PARAMS,
 				Key:    a.id,
 			})
 		}
@@ -146,7 +146,7 @@ func (a *Actor) Receive(ctx actor.Context) {
 		a.lastvalue = mss
 		// TODO: select with bucket or key????
 		switch mss.Bucket {
-		case params.SUBJECT_PARAMS:
+		case constan.SUBJECT_PARAMS:
 			a.lastvalue = mss
 			data := make([]byte, len(mss.GetData()))
 			copy(data, mss.GetData())

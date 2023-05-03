@@ -8,8 +8,8 @@ import (
 	"github.com/dumacp/go-gwiot/pkg/gwiotmsg"
 	"github.com/dumacp/go-gwiot/pkg/gwiotmsg/gwiot"
 	"github.com/dumacp/go-logs/pkg/logs"
+	"github.com/dumacp/go-params/internal/constan"
 	"github.com/dumacp/go-params/internal/pubsub"
-	"github.com/dumacp/go-params/pkg/params"
 )
 
 type discoveryActor struct {
@@ -27,8 +27,8 @@ func (a *discoveryActor) Receive(ctx actor.Context) {
 	switch msg := ctx.Message().(type) {
 	case *actor.Started:
 
-		if err := pubsub.Subscribe(params.TOPIC_REPLY, ctx.Self(), false, Parse); err != nil {
-			logs.LogError.Printf("subscribe pubsub to %s error: %s", params.TOPIC_REPLY, err)
+		if err := pubsub.Subscribe(constan.TOPIC_REPLY, ctx.Self(), false, Parse); err != nil {
+			logs.LogError.Printf("subscribe pubsub to %s error: %s", constan.TOPIC_REPLY, err)
 			break
 		}
 		conx, cancel := context.WithCancel(context.TODO())
@@ -43,7 +43,7 @@ func (a *discoveryActor) Receive(ctx actor.Context) {
 	case *actor.Terminated:
 	case *gwiotmsg.Discovery:
 		disc := &gwiotmsg.Discovery{
-			Reply: params.TOPIC_REPLY,
+			Reply: constan.TOPIC_REPLY,
 		}
 		if data, err := json.Marshal(disc); err != nil {
 			logs.LogWarn.Printf("error discover request: %s", err)
