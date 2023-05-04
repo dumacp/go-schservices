@@ -5,7 +5,7 @@ import (
 	"sort"
 	"time"
 
-	"github.com/dumacp/go-schservices/pkg/messages"
+	"github.com/dumacp/go-schservices/api/services"
 )
 
 type Services struct {
@@ -27,7 +27,7 @@ func (s Service) Newer(o *Service) bool {
 	return s.Timestamp > o.Timestamp
 }
 
-func Valid(s *messages.ScheduleService) bool {
+func Valid(s *services.ScheduleService) bool {
 	if len(s.GetId()) <= 0 {
 		return false
 	}
@@ -45,8 +45,8 @@ func (s Service) Same(o Service) bool {
 	return false
 }
 
-func Next(ss []*messages.ScheduleService, from, to time.Time) (*messages.ScheduleService, bool) {
-	var result *messages.ScheduleService
+func Next(ss []*services.ScheduleService, from, to time.Time) (*services.ScheduleService, bool) {
+	var result *services.ScheduleService
 	mem := float64(math.MaxFloat64)
 	for i := range ss {
 		center := math.Pow(float64(ss[i].GetScheduleDateTime()-time.Now().UnixMilli()), 2)
@@ -66,12 +66,12 @@ func Next(ss []*messages.ScheduleService, from, to time.Time) (*messages.Schedul
 	return result, false
 }
 
-func Newest(ss []messages.ScheduleService) (*messages.ScheduleService, bool) {
+func Newest(ss []services.ScheduleService) (*services.ScheduleService, bool) {
 	sort.Slice(ss, func(i, j int) bool {
 		return ss[i].GetScheduleDateTime() < ss[j].GetScheduleDateTime()
 	})
 
-	var last *messages.ScheduleService
+	var last *services.ScheduleService
 	for i := range ss {
 		v := ss[i]
 		if v.GetScheduleDateTime() > time.Now().Add(3*time.Minute).UnixMilli() && (last != nil) {

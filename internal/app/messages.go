@@ -1,6 +1,6 @@
 package app
 
-import "github.com/dumacp/go-schservices/pkg/messages"
+import "github.com/dumacp/go-schservices/api/services"
 
 type MsgTick struct {
 }
@@ -26,7 +26,7 @@ type MsgLiveExecutedServices struct {
 }
 type MsgSubscribeServices struct{}
 type MsgPublishServices struct {
-	Data *messages.ScheduleService
+	Data *services.ScheduleService
 }
 type MsgGetInDB struct{}
 type MsgKeycloak struct{}
@@ -39,7 +39,7 @@ type MsgServiceData struct {
 }
 type MsgGetScheduleServiceData struct{}
 type MsgScheduleServiceData struct {
-	Data []*messages.ScheduleService
+	Data []*services.ScheduleService
 }
 type MsgGetLiveServiceData struct{}
 type MsgLiveServiceData struct {

@@ -3,7 +3,7 @@ package app
 import (
 	"encoding/json"
 
-	"github.com/dumacp/go-schservices/pkg/messages"
+	"github.com/dumacp/go-schservices/api/services"
 )
 
 const (
@@ -17,7 +17,7 @@ type ExternalSubscribe struct {
 
 func Discover(msg []byte) interface{} {
 
-	subs := new(messages.DiscoverSch)
+	subs := new(services.DiscoverSch)
 
 	if err := json.Unmarshal(msg, subs); err != nil {
 		return err

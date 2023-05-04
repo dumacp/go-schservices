@@ -9,13 +9,13 @@ import (
 	"github.com/asynkron/protoactor-go/actor"
 	"github.com/asynkron/protoactor-go/eventstream"
 	"github.com/asynkron/protoactor-go/remote"
+	"github.com/dumacp/go-actors/database"
 	"github.com/dumacp/go-gwiot/pkg/gwiotmsg"
 	"github.com/dumacp/go-gwiot/pkg/gwiotmsg/gwiot"
 	"github.com/dumacp/go-logs/pkg/logs"
-	"github.com/dumacp/go-params/internal/constan"
-	"github.com/dumacp/go-params/internal/database"
-	"github.com/dumacp/go-params/internal/messages"
-	"github.com/dumacp/go-params/internal/utils"
+	"github.com/dumacp/go-schservices/internal/constan"
+	"github.com/dumacp/go-schservices/internal/messages"
+	"github.com/dumacp/go-schservices/internal/utils"
 )
 
 const (

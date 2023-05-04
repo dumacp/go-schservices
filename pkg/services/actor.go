@@ -1,8 +1,8 @@
-package params
+package services
 
 import (
 	"github.com/asynkron/protoactor-go/actor"
-	"github.com/dumacp/go-params/internal/app"
+	"github.com/dumacp/go-schservices/internal/app"
 )
 
 func Actor(id string, discovery actor.Actor) actor.Actor {

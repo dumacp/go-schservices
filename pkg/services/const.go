@@ -1,6 +1,6 @@
-package params
+package services
 
-import "github.com/dumacp/go-params/internal/constan"
+import "github.com/dumacp/go-schservices/internal/constan"
 
 const (
 	SUBJECT_PARAMS = constan.SUBJECT_PARAMS

@@ -8,8 +8,8 @@ import (
 	"github.com/dumacp/go-gwiot/pkg/gwiotmsg"
 	"github.com/dumacp/go-gwiot/pkg/gwiotmsg/gwiot"
 	"github.com/dumacp/go-logs/pkg/logs"
-	"github.com/dumacp/go-params/internal/constan"
-	"github.com/dumacp/go-params/internal/pubsub"
+	"github.com/dumacp/go-schservices/internal/constan"
+	"github.com/dumacp/go-schservices/internal/pubsub"
 )
 
 type discoveryActor struct {
@@ -27,7 +27,7 @@ func (a *discoveryActor) Receive(ctx actor.Context) {
 	switch msg := ctx.Message().(type) {
 	case *actor.Started:
 
-		if err := pubsub.Subscribe(constan.TOPIC_REPLY, ctx.Self(), false, Parse); err != nil {
+		if err := pubsub.Subscribe(constan.TOPIC_REPLY, ctx.Self(), Parse); err != nil {
 			logs.LogError.Printf("subscribe pubsub to %s error: %s", constan.TOPIC_REPLY, err)
 			break
 		}
