@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"fmt"
 	"sort"
 	"time"
 
@@ -52,7 +53,7 @@ func subscribe(ctx actor.Context, evs *eventstream.EventStream) *eventstream.Sub
 }
 
 func (a *Actor) Receive(ctx actor.Context) {
-	logs.LogBuild.Printf("Message arrived in %s: %s, %T, %s",
+	logs.LogBuild.Printf("Message arrived in %s: %v, %T, %s",
 		ctx.Self().GetId(), ctx.Message(), ctx.Message(), ctx.Sender())
 	switch msg := ctx.Message().(type) {
 	case *actor.Started:
@@ -65,7 +66,7 @@ func (a *Actor) Receive(ctx actor.Context) {
 
 		a.db = db.PID()
 		if a.dataActor != nil {
-			if _, err := ctx.SpawnNamed(actor.PropsFromFunc(a.dataActor.Receive), "params-data-actor"); err != nil {
+			if _, err := ctx.SpawnNamed(actor.PropsFromFunc(a.dataActor.Receive), "schsvc-data-actor"); err != nil {
 				time.Sleep(3 * time.Second)
 				logs.LogError.Panicf("open nats-actor error: %s", err)
 			}
@@ -84,60 +85,87 @@ func (a *Actor) Receive(ctx actor.Context) {
 		}
 	case *MsgTick:
 	case *services.Mods:
+
 		ss := msg.GetUpdates()
 		sort.SliceStable(ss, func(i, j int) bool {
 			return ss[i].GetScheduleDateTime() < ss[j].GetScheduleDateTime()
 		})
 		for _, update := range ss {
+
+			fmt.Printf("//////////////**************** update: %v\n", update)
+			fmt.Printf("//////////////**************** state: %v - %s\n", update.GetState(), update.GetState())
+			fmt.Printf("//////////////**************** timingState: %v - %s\n",
+				update.GetCheckpointTimingState().GetState(), update.GetCheckpointTimingState().GetState())
 			switch update.State {
-			case services.State_STARTED,
-				services.State_READY_TO_START,
-				services.State_WAITING_TO_ARRIVE_TO_STARTING_POINT:
-				serviceTime := time.UnixMilli(update.GetScheduleDateTime())
-				if time.Until(serviceTime) > 0 ||
-					time.Since(serviceTime) < 20*time.Minute ||
-					time.Since(serviceTime) < 60*time.Minute && update.State == services.State_STARTED {
-					a.evs.Publish(update)
-					if ctx.Parent() != nil {
-						ctx.Request(ctx.Parent(), update)
-					}
-				}
-			case services.State_SCHEDULED:
-				serviceTime := time.UnixMilli(update.GetScheduleDateTime())
-				if time.Until(serviceTime) <= 0 {
-					break
-				}
+			case "":
 				a.evs.Publish(update)
 				if ctx.Parent() != nil {
-					ctx.Request(ctx.Parent(), update)
+					ctx.Request(ctx.Parent(), &services.UpdateServiceMsg{
+						Update: update,
+					})
 				}
-			case services.State_CANCELLED,
-				services.State_ABORTED, services.State_ENDED:
+			default:
 				a.evs.Publish(update)
 				if ctx.Parent() != nil {
-					ctx.Request(ctx.Parent(), update)
+					ctx.Request(ctx.Parent(), &services.ServiceMsg{
+						Update: update,
+					})
 				}
+				// case services.State_STARTED.String(),
+				// 	services.State_READY_TO_START.String(),
+				// 	services.State_WAITING_TO_ARRIVE_TO_STARTING_POINT.String():
+				// 	serviceTime := time.UnixMilli(update.GetScheduleDateTime())
+				// 	if time.Until(serviceTime) > 0 ||
+				// 		time.Since(serviceTime) < 20*time.Minute ||
+				// 		time.Since(serviceTime) < 60*time.Minute && update.State == services.State_STARTED.String() {
+				// 		a.evs.Publish(update)
+				// 		if ctx.Parent() != nil {
+				// 			ctx.Request(ctx.Parent(), update)
+				// 		}
+				// 	}
+				// case services.State_SCHEDULED.String():
+				// 	serviceTime := time.UnixMilli(update.GetScheduleDateTime())
+				// 	if time.Until(serviceTime) <= 0 {
+				// 		break
+				// 	}
+				// 	a.evs.Publish(update)
+				// 	if ctx.Parent() != nil {
+				// 		ctx.Request(ctx.Parent(), update)
+				// 	}
+				// case services.State_CANCELLED.String(),
+				// 	services.State_ABORTED.String(), services.State_ENDED.String():
+				// 	a.evs.Publish(update)
+				// 	if ctx.Parent() != nil {
+				// 		ctx.Request(ctx.Parent(), update)
+				// 	}
 			}
 		}
+		sr := msg.GetRemovals()
+		sort.SliceStable(ss, func(i, j int) bool {
+			return ss[i].GetScheduleDateTime() < ss[j].GetScheduleDateTime()
+		})
+		for _, update := range sr {
+			fmt.Printf("//////////////**************** remove: %v\n", update)
+			a.evs.Publish(update)
+			if ctx.Parent() != nil {
+				ctx.Request(ctx.Parent(), &services.RemoveServiceMsg{
+					Update: update,
+				})
+			}
+		}
+
 	case *services.Snapshot:
 		ss := msg.GetScheduleServices()
 		sort.SliceStable(ss, func(i, j int) bool {
 			return ss[i].GetScheduleDateTime() < ss[j].GetScheduleDateTime()
 		})
 		for _, update := range ss {
-			switch update.State {
-			case services.State_STARTED,
-				services.State_READY_TO_START,
-				services.State_WAITING_TO_ARRIVE_TO_STARTING_POINT:
-				serviceTime := time.UnixMilli(update.GetScheduleDateTime())
-				if time.Until(serviceTime) > 0 ||
-					time.Since(serviceTime) < 20*time.Minute ||
-					time.Since(serviceTime) < 60*time.Minute && update.State == services.State_STARTED {
-					a.evs.Publish(update)
-					if ctx.Parent() != nil {
-						ctx.Request(ctx.Parent(), update)
-					}
-				}
+			fmt.Printf("//////////////**************** state: %v - %s\n", update.GetState(), update.GetState())
+			a.evs.Publish(update)
+			if ctx.Parent() != nil {
+				ctx.Request(ctx.Parent(), &services.RemoveServiceMsg{
+					Update: update,
+				})
 			}
 		}
 	}

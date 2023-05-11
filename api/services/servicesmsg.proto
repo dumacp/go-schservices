@@ -1,6 +1,8 @@
 syntax = "proto3";
 package messages;
 
+import "services.proto";
+
 option go_package = "github.com/dumacp/go-schservices/api/services";
 
 message DiscoverSch {
@@ -28,4 +30,14 @@ message ExternalServiceSch {
 message RequestStatusSch {}
 message StatusSch {
     int32 state = 1;
+}
+
+message updateServiceMsg {
+	scheduleService update = 1;
+}
+message removeServiceMsg {
+	scheduleService update = 1;
+}
+message serviceMsg {
+	scheduleService update = 1;
 }

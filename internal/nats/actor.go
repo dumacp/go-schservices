@@ -13,6 +13,7 @@ import (
 	"github.com/dumacp/go-gwiot/pkg/gwiotmsg"
 	"github.com/dumacp/go-gwiot/pkg/gwiotmsg/gwiot"
 	"github.com/dumacp/go-logs/pkg/logs"
+	"github.com/dumacp/go-schservices/api/services"
 	"github.com/dumacp/go-schservices/internal/constan"
 	"github.com/dumacp/go-schservices/internal/messages"
 	"github.com/dumacp/go-schservices/internal/utils"
@@ -98,7 +99,7 @@ func (a *Actor) Receive(ctx actor.Context) {
 			}
 		} else if a.pidNats == nil {
 			r := remote.GetRemote(ctx.ActorSystem())
-			pidResponse, err := r.SpawnNamed(a.remoteAddress, "nast-params-clietn", gwiot.KIND_NAME, 3*time.Second)
+			pidResponse, err := r.SpawnNamed(a.remoteAddress, "nast-schsvc-client", gwiot.KIND_NAME, 3*time.Second)
 			if err != nil {
 				logs.LogWarn.Printf("remote activation nast error: %s", err)
 				a.remoteAddress = ""
@@ -110,9 +111,17 @@ func (a *Actor) Receive(ctx actor.Context) {
 			a.pidNats = pid
 
 			ctx.Request(a.pidNats, &gwiotmsg.WatchKeyValue{
-				Bucket: constan.SUBJECT_PARAMS,
+				Bucket: constan.SUBJECT_SVC_SNAPSHOT,
 				Key:    a.id,
 			})
+
+			go func() {
+				time.Sleep(6 * time.Second)
+				ctx.Request(a.pidNats, &gwiotmsg.WatchKeyValue{
+					Bucket: constan.SUBJECT_SVC_MODS,
+					Key:    a.id,
+				})
+			}()
 		}
 
 	case *gwiotmsg.DiscoveryResponse:
@@ -146,19 +155,35 @@ func (a *Actor) Receive(ctx actor.Context) {
 		a.lastvalue = mss
 		// TODO: select with bucket or key????
 		switch mss.Bucket {
-		case constan.SUBJECT_PARAMS:
+		case constan.SUBJECT_SVC_SNAPSHOT:
 			a.lastvalue = mss
 			data := make([]byte, len(mss.GetData()))
 			copy(data, mss.GetData())
-			a.evs.Publish(&messages.MsgRawdata{
-				Payload: data,
-			})
+			snap := new(services.Snapshot)
+			if err := json.Unmarshal(data, snap); err != nil {
+				logs.LogWarn.Printf("error parse message: %s", err)
+				break
+			}
+			a.evs.Publish(snap)
 			if ctx.Parent() != nil {
-				ctx.Send(ctx.Parent(), &messages.MsgRawdata{
-					Payload: data,
-				})
+				ctx.Send(ctx.Parent(), snap)
+			}
+
+		case constan.SUBJECT_SVC_MODS:
+			a.lastvalue = mss
+			data := make([]byte, len(mss.GetData()))
+			copy(data, mss.GetData())
+			snap := new(services.Mods)
+			if err := json.Unmarshal(data, snap); err != nil {
+				logs.LogWarn.Printf("error parse message: %s", err)
+				break
+			}
+			a.evs.Publish(snap)
+			if ctx.Parent() != nil {
+				ctx.Send(ctx.Parent(), snap)
 			}
 		}
+
 	case *MsgSubscribe:
 		if ctx.Sender() == nil {
 			break

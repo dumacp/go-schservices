@@ -1,6 +1,7 @@
 package constan
 
 const (
-	SUBJECT_PARAMS = "CFG-PARAMS"
-	TOPIC_REPLY    = "params/gwiot"
+	SUBJECT_SVC_MODS     = "FMS-SERVICE-SCHEDULES-MODS"
+	SUBJECT_SVC_SNAPSHOT = "FMS-SERVICE-SCHEDULES-SNAPSHOT"
+	TOPIC_REPLY          = "schservices/gwiot"
 )
