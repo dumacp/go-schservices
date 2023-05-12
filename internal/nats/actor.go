@@ -143,9 +143,9 @@ func (a *Actor) Receive(ctx actor.Context) {
 			break
 		}
 		a.lastvalue = backup
-		a.evs.Publish(&MsgRawdata{
-			Payload: backup.Data,
-		})
+		// a.evs.Publish(&MsgRawdata{
+		// 	Payload: backup.Data,
+		// })
 	case *gwiotmsg.WatchMessage:
 		mss := msg.GetKvEntryMessage()
 		if a.lastvalue != nil && a.lastvalue.Rev >= mss.Rev {

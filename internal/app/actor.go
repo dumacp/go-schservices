@@ -3,7 +3,6 @@ package app
 import (
 	"context"
 	"fmt"
-	"sort"
 	"time"
 
 	"github.com/asynkron/protoactor-go/actor"
@@ -87,9 +86,9 @@ func (a *Actor) Receive(ctx actor.Context) {
 	case *services.Mods:
 
 		ss := msg.GetUpdates()
-		sort.SliceStable(ss, func(i, j int) bool {
-			return ss[i].GetScheduleDateTime() < ss[j].GetScheduleDateTime()
-		})
+		// sort.SliceStable(ss, func(i, j int) bool {
+		// 	return ss[i].GetScheduleDateTime() < ss[j].GetScheduleDateTime()
+		// })
 		for _, update := range ss {
 
 			fmt.Printf("//////////////**************** update: %v\n", update)
@@ -97,20 +96,24 @@ func (a *Actor) Receive(ctx actor.Context) {
 			fmt.Printf("//////////////**************** timingState: %v - %s\n",
 				update.GetCheckpointTimingState().GetState(), update.GetCheckpointTimingState().GetState())
 			switch update.State {
-			case "":
-				a.evs.Publish(update)
+			default:
+				a.evs.Publish(&services.UpdateServiceMsg{
+					Update: update,
+				})
 				if ctx.Parent() != nil {
 					ctx.Request(ctx.Parent(), &services.UpdateServiceMsg{
 						Update: update,
 					})
 				}
-			default:
-				a.evs.Publish(update)
-				if ctx.Parent() != nil {
-					ctx.Request(ctx.Parent(), &services.ServiceMsg{
-						Update: update,
-					})
-				}
+				// default:
+				// 	a.evs.Publish(&services.ServiceMsg{
+				// 		Update: update,
+				// 	})
+				// 	if ctx.Parent() != nil {
+				// 		ctx.Request(ctx.Parent(), &services.ServiceMsg{
+				// 			Update: update,
+				// 		})
+				// 	}
 				// case services.State_STARTED.String(),
 				// 	services.State_READY_TO_START.String(),
 				// 	services.State_WAITING_TO_ARRIVE_TO_STARTING_POINT.String():
@@ -141,12 +144,14 @@ func (a *Actor) Receive(ctx actor.Context) {
 			}
 		}
 		sr := msg.GetRemovals()
-		sort.SliceStable(ss, func(i, j int) bool {
-			return ss[i].GetScheduleDateTime() < ss[j].GetScheduleDateTime()
-		})
+		// sort.SliceStable(ss, func(i, j int) bool {
+		// 	return ss[i].GetScheduleDateTime() < ss[j].GetScheduleDateTime()
+		// })
 		for _, update := range sr {
 			fmt.Printf("//////////////**************** remove: %v\n", update)
-			a.evs.Publish(update)
+			a.evs.Publish(&services.RemoveServiceMsg{
+				Update: update,
+			})
 			if ctx.Parent() != nil {
 				ctx.Request(ctx.Parent(), &services.RemoveServiceMsg{
 					Update: update,
@@ -155,19 +160,29 @@ func (a *Actor) Receive(ctx actor.Context) {
 		}
 
 	case *services.Snapshot:
-		ss := msg.GetScheduleServices()
-		sort.SliceStable(ss, func(i, j int) bool {
-			return ss[i].GetScheduleDateTime() < ss[j].GetScheduleDateTime()
+		ss := msg.GetScheduledServices()
+		fmt.Printf("////// services len: %d\n", len(ss))
+		// sort.SliceStable(ss, func(i, j int) bool {
+		// 	return ss[i].GetScheduleDateTime() < ss[j].GetScheduleDateTime()
+		// })
+		// for _, update := range ss {
+		// 	fmt.Printf("//////////////**************** state: %v - %s\n", update.GetState(), update.GetState())
+		// 	a.evs.Publish(update)
+		// 	if ctx.Parent() != nil {
+		// 		ctx.Request(ctx.Parent(), &services.RemoveServiceMsg{
+		// 			Update: update,
+		// 		})
+		// 	}
+		// }
+		a.evs.Publish(&services.ServiceAllMsg{
+			Updates: ss,
 		})
-		for _, update := range ss {
-			fmt.Printf("//////////////**************** state: %v - %s\n", update.GetState(), update.GetState())
-			a.evs.Publish(update)
-			if ctx.Parent() != nil {
-				ctx.Request(ctx.Parent(), &services.RemoveServiceMsg{
-					Update: update,
-				})
-			}
+		if ctx.Parent() != nil {
+			ctx.Request(ctx.Parent(), &services.ServiceAllMsg{
+				Updates: ss,
+			})
 		}
+
 	}
 }
 

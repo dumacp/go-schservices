@@ -59,7 +59,7 @@ message checkpointTimingState {
 
 message snapshot {
 	string version = 1;	
-	repeated scheduleService scheduleServices = 2;
+	repeated scheduleService scheduledServices = 2;
 }
 
 message mods {

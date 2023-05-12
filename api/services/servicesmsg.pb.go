@@ -482,6 +482,53 @@ func (x *ServiceMsg) GetUpdate() *ScheduleService {
 	return nil
 }
 
+type ServiceAllMsg struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Updates []*ScheduleService `protobuf:"bytes,1,rep,name=updates,proto3" json:"updates,omitempty"`
+}
+
+func (x *ServiceAllMsg) Reset() {
+	*x = ServiceAllMsg{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_servicesmsg_proto_msgTypes[9]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ServiceAllMsg) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ServiceAllMsg) ProtoMessage() {}
+
+func (x *ServiceAllMsg) ProtoReflect() protoreflect.Message {
+	mi := &file_servicesmsg_proto_msgTypes[9]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ServiceAllMsg.ProtoReflect.Descriptor instead.
+func (*ServiceAllMsg) Descriptor() ([]byte, []int) {
+	return file_servicesmsg_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *ServiceAllMsg) GetUpdates() []*ScheduleService {
+	if x != nil {
+		return x.Updates
+	}
+	return nil
+}
+
 var File_servicesmsg_proto protoreflect.FileDescriptor
 
 var file_servicesmsg_proto_rawDesc = []byte{
@@ -523,10 +570,15 @@ var file_servicesmsg_proto_rawDesc = []byte{
 	0x67, 0x12, 0x31, 0x0a, 0x06, 0x75, 0x70, 0x64, 0x61, 0x74, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28,
 	0x0b, 0x32, 0x19, 0x2e, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x73, 0x63, 0x68,
 	0x65, 0x64, 0x75, 0x6c, 0x65, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x52, 0x06, 0x75, 0x70,
-	0x64, 0x61, 0x74, 0x65, 0x42, 0x2f, 0x5a, 0x2d, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63,
-	0x6f, 0x6d, 0x2f, 0x64, 0x75, 0x6d, 0x61, 0x63, 0x70, 0x2f, 0x67, 0x6f, 0x2d, 0x73, 0x63, 0x68,
-	0x73, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x73, 0x2f, 0x61, 0x70, 0x69, 0x2f, 0x73, 0x65, 0x72,
-	0x76, 0x69, 0x63, 0x65, 0x73, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x64, 0x61, 0x74, 0x65, 0x22, 0x44, 0x0a, 0x0d, 0x73, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x41,
+	0x6c, 0x6c, 0x4d, 0x73, 0x67, 0x12, 0x33, 0x0a, 0x07, 0x75, 0x70, 0x64, 0x61, 0x74, 0x65, 0x73,
+	0x18, 0x01, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x19, 0x2e, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65,
+	0x73, 0x2e, 0x73, 0x63, 0x68, 0x65, 0x64, 0x75, 0x6c, 0x65, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63,
+	0x65, 0x52, 0x07, 0x75, 0x70, 0x64, 0x61, 0x74, 0x65, 0x73, 0x42, 0x2f, 0x5a, 0x2d, 0x67, 0x69,
+	0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x64, 0x75, 0x6d, 0x61, 0x63, 0x70, 0x2f,
+	0x67, 0x6f, 0x2d, 0x73, 0x63, 0x68, 0x73, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x73, 0x2f, 0x61,
+	0x70, 0x69, 0x2f, 0x73, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x73, 0x62, 0x06, 0x70, 0x72, 0x6f,
+	0x74, 0x6f, 0x33,
 }
 
 var (
@@ -541,7 +593,7 @@ func file_servicesmsg_proto_rawDescGZIP() []byte {
 	return file_servicesmsg_proto_rawDescData
 }
 
-var file_servicesmsg_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
+var file_servicesmsg_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
 var file_servicesmsg_proto_goTypes = []interface{}{
 	(*DiscoverSch)(nil),         // 0: messages.DiscoverSch
 	(*DiscoverResponseSch)(nil), // 1: messages.DiscoverResponseSch
@@ -552,17 +604,19 @@ var file_servicesmsg_proto_goTypes = []interface{}{
 	(*UpdateServiceMsg)(nil),    // 6: messages.updateServiceMsg
 	(*RemoveServiceMsg)(nil),    // 7: messages.removeServiceMsg
 	(*ServiceMsg)(nil),          // 8: messages.serviceMsg
-	(*ScheduleService)(nil),     // 9: messages.scheduleService
+	(*ServiceAllMsg)(nil),       // 9: messages.serviceAllMsg
+	(*ScheduleService)(nil),     // 10: messages.scheduleService
 }
 var file_servicesmsg_proto_depIdxs = []int32{
-	9, // 0: messages.updateServiceMsg.update:type_name -> messages.scheduleService
-	9, // 1: messages.removeServiceMsg.update:type_name -> messages.scheduleService
-	9, // 2: messages.serviceMsg.update:type_name -> messages.scheduleService
-	3, // [3:3] is the sub-list for method output_type
-	3, // [3:3] is the sub-list for method input_type
-	3, // [3:3] is the sub-list for extension type_name
-	3, // [3:3] is the sub-list for extension extendee
-	0, // [0:3] is the sub-list for field type_name
+	10, // 0: messages.updateServiceMsg.update:type_name -> messages.scheduleService
+	10, // 1: messages.removeServiceMsg.update:type_name -> messages.scheduleService
+	10, // 2: messages.serviceMsg.update:type_name -> messages.scheduleService
+	10, // 3: messages.serviceAllMsg.updates:type_name -> messages.scheduleService
+	4,  // [4:4] is the sub-list for method output_type
+	4,  // [4:4] is the sub-list for method input_type
+	4,  // [4:4] is the sub-list for extension type_name
+	4,  // [4:4] is the sub-list for extension extendee
+	0,  // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_servicesmsg_proto_init() }
@@ -680,6 +734,18 @@ func file_servicesmsg_proto_init() {
 				return nil
 			}
 		}
+		file_servicesmsg_proto_msgTypes[9].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ServiceAllMsg); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -687,7 +753,7 @@ func file_servicesmsg_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_servicesmsg_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   9,
+			NumMessages:   10,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

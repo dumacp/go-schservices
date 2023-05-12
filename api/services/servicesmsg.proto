@@ -41,3 +41,6 @@ message removeServiceMsg {
 message serviceMsg {
 	scheduleService update = 1;
 }
+message serviceAllMsg {
+	repeated scheduleService updates = 1;
+}
