@@ -32,7 +32,7 @@ message ScheduleService {
             State state = 2;
             string organizationId = 3;
             int64 scheduleDateTime = 4;  //Unix Seconds 
-            Itinerary itinerary = 5;
+            Itinerary itinenary = 5;
             Route route = 6;
             Driver driver = 7;
             repeated string driverIds = 8;

@@ -52,8 +52,13 @@ func subscribe(ctx actor.Context, evs *eventstream.EventStream) *eventstream.Sub
 }
 
 func (a *Actor) Receive(ctx actor.Context) {
-	logs.LogBuild.Printf("Message arrived in %s: %v, %T, %s",
-		ctx.Self().GetId(), ctx.Message(), ctx.Message(), ctx.Sender())
+	fmt.Printf("message: %q --> %q, %T\n", func() string {
+		if ctx.Sender() == nil {
+			return ""
+		} else {
+			return ctx.Sender().GetId()
+		}
+	}(), ctx.Self().GetId(), ctx.Message())
 	switch msg := ctx.Message().(type) {
 	case *actor.Started:
 

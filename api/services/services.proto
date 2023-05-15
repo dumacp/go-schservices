@@ -43,7 +43,7 @@ message scheduleService {
             string state = 2;
             string organizationId = 3;
             int64 scheduleDateTime = 4;  //Unix Seconds 
-            itinerary itinerary = 5;
+            itinerary itinenary = 5;
             route route = 6;
             driver driver = 7;
             repeated string driverIds = 8;
