@@ -9,7 +9,6 @@ import (
 	"github.com/asynkron/protoactor-go/actor"
 	"github.com/asynkron/protoactor-go/eventstream"
 	"github.com/asynkron/protoactor-go/remote"
-	"github.com/dumacp/go-actors/database"
 	"github.com/dumacp/go-gwiot/pkg/gwiotmsg"
 	"github.com/dumacp/go-gwiot/pkg/gwiotmsg/gwiot"
 	"github.com/dumacp/go-logs/pkg/logs"
@@ -33,7 +32,7 @@ type Actor struct {
 	subscriptors   map[string]*eventstream.Subscription
 	lastvalue      *gwiotmsg.KvEntryMessage
 	cancel         func()
-	db             database.DBservice
+	// db             database.DBservice
 }
 
 func NewActor(id string, actorDiscovery actor.Actor) actor.Actor {
@@ -123,34 +122,26 @@ func (a *Actor) Receive(ctx actor.Context) {
 			go func() {
 				time.Sleep(6 * time.Second)
 				ctx.Request(a.pidNats, &gwiotmsg.WatchKeyValue{
-					Bucket: constan.SUBJECT_SVC_MODS,
-					Key:    a.id,
+					Bucket:         constan.SUBJECT_SVC_MODS,
+					Key:            a.id,
+					IncludeHistory: true,
 				})
 			}()
 		}
-
+	case *gwiotmsg.Connected:
+		a.evs.Publish(msg)
+		if ctx.Parent() != nil {
+			ctx.Send(ctx.Parent(), msg)
+		}
+	case *gwiotmsg.Disconnected:
+		a.evs.Publish(msg)
+		if ctx.Parent() != nil {
+			ctx.Send(ctx.Parent(), msg)
+		}
 	case *gwiotmsg.DiscoveryResponse:
 		a.remoteAddress = fmt.Sprintf("%s:%d", msg.GetHost(), msg.GetPort())
 		ctx.Send(ctx.Self(), &tickmsg{})
-	case *MsgDBdata:
-		var backup *gwiotmsg.KvEntryMessage
-		if a.db == nil {
-			logs.LogWarn.Printf("databse is nil")
-			break
-		}
-		data, err := a.db.Get("current", "backup")
-		if err != nil {
-			logs.LogWarn.Printf("get db data error: %s", err)
-			break
-		}
-		if err := json.Unmarshal(data, backup); err != nil {
-			logs.LogWarn.Printf("get db data error: %s", err)
-			break
-		}
-		a.lastvalue = backup
-		// a.evs.Publish(&MsgRawdata{
-		// 	Payload: backup.Data,
-		// })
+
 	case *gwiotmsg.WatchMessage:
 		mss := msg.GetKvEntryMessage()
 		if a.lastvalue != nil && a.lastvalue.Rev >= mss.Rev {

@@ -52,13 +52,13 @@ func subscribe(ctx actor.Context, evs *eventstream.EventStream) *eventstream.Sub
 }
 
 func (a *Actor) Receive(ctx actor.Context) {
-	fmt.Printf("message: %q --> %q, %T\n", func() string {
+	fmt.Printf("message: %q --> %q, %T (%s)\n", func() string {
 		if ctx.Sender() == nil {
 			return ""
 		} else {
 			return ctx.Sender().GetId()
 		}
-	}(), ctx.Self().GetId(), ctx.Message())
+	}(), ctx.Self().GetId(), ctx.Message(), ctx.Message())
 	switch msg := ctx.Message().(type) {
 	case *actor.Started:
 
@@ -148,6 +148,23 @@ func (a *Actor) Receive(ctx actor.Context) {
 				// 	}
 			}
 		}
+
+		sa := msg.GetAdditions()
+		// sort.SliceStable(ss, func(i, j int) bool {
+		// 	return ss[i].GetScheduleDateTime() < ss[j].GetScheduleDateTime()
+		// })
+		for _, update := range sa {
+			fmt.Printf("//////////////**************** addition: %v\n", update)
+			a.evs.Publish(&services.UpdateServiceMsg{
+				Update: update,
+			})
+			if ctx.Parent() != nil {
+				ctx.Request(ctx.Parent(), &services.UpdateServiceMsg{
+					Update: update,
+				})
+			}
+		}
+
 		sr := msg.GetRemovals()
 		// sort.SliceStable(ss, func(i, j int) bool {
 		// 	return ss[i].GetScheduleDateTime() < ss[j].GetScheduleDateTime()
