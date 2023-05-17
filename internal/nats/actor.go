@@ -32,6 +32,7 @@ type Actor struct {
 	subscriptors   map[string]*eventstream.Subscription
 	lastvalue      *gwiotmsg.KvEntryMessage
 	cancel         func()
+	connected      bool
 	// db             database.DBservice
 }
 
@@ -90,10 +91,38 @@ func (a *Actor) Receive(ctx actor.Context) {
 			ctx.PoisonFuture(a.pidNats).Wait()
 		}
 	case *actor.Terminated:
+		logs.LogWarn.Printf("actor terminated (%s)", msg.GetWho().GetId())
 		if a.pidNats != nil && (msg.GetWho().GetId() == a.pidNats.GetId()) {
 			a.pidNats = nil
+			a.evs.Publish(&MsgStatus{
+				State: false,
+			})
+			if ctx.Parent() != nil {
+				ctx.Send(ctx.Parent(), &MsgStatus{
+					State: false,
+				})
+			}
+			// a.evs.Publish(&gwiotmsg.Disconnected{
+			// 	Error: fmt.Sprintf("actor terminated (%s)", msg.GetWho().GetId()),
+			// })
+			// if ctx.Parent() != nil {
+			// 	ctx.Send(ctx.Parent(), &gwiotmsg.Disconnected{
+			// 		Error: fmt.Sprintf("actor terminated (%s)", msg.GetWho().GetId()),
+			// 	})
+			// }
+		}
+	case *MsgRequeststatus:
+		if !a.connected || a.pidNats == nil {
+			ctx.Respond(&MsgStatus{
+				State: false,
+			})
+		} else {
+			ctx.Respond(&MsgStatus{
+				State: true,
+			})
 		}
 	case *tickmsg:
+		// TODO: check this
 		if len(a.remoteAddress) <= 0 {
 			if a.pidDiscovery != nil {
 				disc := &gwiotmsg.Discovery{
@@ -127,22 +156,41 @@ func (a *Actor) Receive(ctx actor.Context) {
 					IncludeHistory: true,
 				})
 			}()
+		} else if !a.connected {
+			ctx.Request(a.pidNats, &gwiotmsg.StatusConnRequest{})
+		}
+	case *gwiotmsg.StatusConn:
+		if msg.State {
+			a.connected = true
 		}
 	case *gwiotmsg.Connected:
-		a.evs.Publish(msg)
+		a.connected = true
+		a.evs.Publish(&MsgStatus{
+			State: true,
+		})
 		if ctx.Parent() != nil {
-			ctx.Send(ctx.Parent(), msg)
+			ctx.Send(ctx.Parent(), &MsgStatus{
+				State: true,
+			})
 		}
 	case *gwiotmsg.Disconnected:
-		a.evs.Publish(msg)
+		a.connected = false
+		a.evs.Publish(&MsgStatus{
+			State: false,
+		})
 		if ctx.Parent() != nil {
-			ctx.Send(ctx.Parent(), msg)
+			ctx.Send(ctx.Parent(), &MsgStatus{
+				State: false,
+			})
 		}
 	case *gwiotmsg.DiscoveryResponse:
 		a.remoteAddress = fmt.Sprintf("%s:%d", msg.GetHost(), msg.GetPort())
 		ctx.Send(ctx.Self(), &tickmsg{})
 
 	case *gwiotmsg.WatchMessage:
+		if !a.connected {
+			ctx.Send(ctx.Self(), &gwiotmsg.Connected{})
+		}
 		mss := msg.GetKvEntryMessage()
 		if a.lastvalue != nil && a.lastvalue.Rev >= mss.Rev {
 			logs.LogWarn.Printf("same Rev in message: %d", mss.Rev)

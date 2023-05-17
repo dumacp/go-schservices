@@ -10,6 +10,7 @@ import (
 	"github.com/dumacp/go-actors/database"
 	"github.com/dumacp/go-logs/pkg/logs"
 	"github.com/dumacp/go-schservices/api/services"
+	"github.com/dumacp/go-schservices/internal/nats"
 	"github.com/dumacp/go-schservices/internal/utils"
 )
 
@@ -83,6 +84,34 @@ func (a *Actor) Receive(ctx actor.Context) {
 		a.contxt = conx
 		go tick(conx, ctx, TIMEOUT)
 		logs.LogInfo.Printf("started \"%s\", %v", ctx.Self().GetId(), ctx.Self())
+	// case *gwiotmsg.Disconnected:
+	// 	logs.LogWarn.Printf("error disconnect: %s", msg.Error)
+	// 	a.evs.Publish(&services.StatusSch{
+	// 		State: 0,
+	// 	})
+	// 	if ctx.Parent() != nil {
+	// 		ctx.Request(ctx.Parent(), &services.StatusSch{
+	// 			State: 0,
+	// 		})
+	// 	}
+	case *services.RequestStatusSch:
+
+	case *nats.MsgStatus:
+		logs.LogInfo.Printf("data connected: %v", msg.State)
+		state := func() int32 {
+			if msg.State {
+				return 1
+			}
+			return 0
+		}()
+		a.evs.Publish(&services.StatusSch{
+			State: state,
+		})
+		if ctx.Parent() != nil {
+			ctx.Request(ctx.Parent(), &services.StatusSch{
+				State: state,
+			})
+		}
 	case *actor.Stopping:
 		if a.cancel != nil {
 			a.cancel()
