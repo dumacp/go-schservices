@@ -93,6 +93,7 @@ func (a *Actor) Receive(ctx actor.Context) {
 	case *actor.Terminated:
 		logs.LogWarn.Printf("actor terminated (%s)", msg.GetWho().GetId())
 		if a.pidNats != nil && (msg.GetWho().GetId() == a.pidNats.GetId()) {
+			a.connected = false
 			a.pidNats = nil
 			a.evs.Publish(&MsgStatus{
 				State: false,
@@ -158,10 +159,6 @@ func (a *Actor) Receive(ctx actor.Context) {
 			}()
 		} else if !a.connected {
 			ctx.Request(a.pidNats, &gwiotmsg.StatusConnRequest{})
-		}
-	case *gwiotmsg.StatusConn:
-		if msg.State {
-			a.connected = true
 		}
 	case *gwiotmsg.Connected:
 		a.connected = true
