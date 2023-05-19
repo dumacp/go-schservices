@@ -144,14 +144,14 @@ func (a *Actor) Receive(ctx actor.Context) {
 			ctx.Watch(pid)
 			a.pidNats = pid
 
-			ctx.Request(a.pidNats, &gwiotmsg.WatchKeyValue{
+			ctx.Send(ctx.Self(), &gwiotmsg.WatchKeyValue{
 				Bucket: constan.SUBJECT_SVC_SNAPSHOT,
 				Key:    a.id,
 			})
 
 			go func() {
 				time.Sleep(6 * time.Second)
-				ctx.Request(a.pidNats, &gwiotmsg.WatchKeyValue{
+				ctx.Send(ctx.Self(), &gwiotmsg.WatchKeyValue{
 					Bucket:         constan.SUBJECT_SVC_MODS,
 					Key:            a.id,
 					IncludeHistory: true,
@@ -159,6 +159,10 @@ func (a *Actor) Receive(ctx actor.Context) {
 			}()
 		} else if !a.connected {
 			ctx.Request(a.pidNats, &gwiotmsg.StatusConnRequest{})
+		}
+	case *gwiotmsg.WatchKeyValue:
+		if a.pidNats != nil {
+			ctx.Request(a.pidNats, msg)
 		}
 	case *gwiotmsg.Connected:
 		a.connected = true

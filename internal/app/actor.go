@@ -198,16 +198,23 @@ func (a *Actor) Receive(ctx actor.Context) {
 		// sort.SliceStable(ss, func(i, j int) bool {
 		// 	return ss[i].GetScheduleDateTime() < ss[j].GetScheduleDateTime()
 		// })
-		for _, update := range sr {
-			fmt.Printf("//////////////**************** remove: %v\n", update)
-			a.evs.Publish(&services.RemoveServiceMsg{
-				Update: update,
-			})
-			if ctx.Parent() != nil {
-				ctx.Request(ctx.Parent(), &services.RemoveServiceMsg{
-					Update: update,
-				})
-			}
+		if len(sr) > 0 {
+			go func() {
+				// delay remove services
+				time.Sleep(3 * time.Second)
+				for _, update := range sr {
+
+					fmt.Printf("//////////////**************** remove: %v\n", update)
+					a.evs.Publish(&services.RemoveServiceMsg{
+						Update: update,
+					})
+					if ctx.Parent() != nil {
+						ctx.Request(ctx.Parent(), &services.RemoveServiceMsg{
+							Update: update,
+						})
+					}
+				}
+			}()
 		}
 
 	case *services.Snapshot:
