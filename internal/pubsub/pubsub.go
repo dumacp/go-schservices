@@ -120,7 +120,7 @@ func (ps *pubsubActor) Receive(ctx actor.Context) {
 	case *publishMSG:
 		// fmt.Printf("publish msg: %s", msg.msg)
 		logs.LogBuild.Printf("publish msg: %s", msg.msg)
-		tk := ps.client.Publish(msg.topic, 0, false, msg.msg)
+		tk := ps.client.Publish(msg.topic, 1, false, msg.msg)
 		if !tk.WaitTimeout(3 * time.Second) {
 			if tk.Error() != nil {
 				logs.LogError.Printf("end error: %s, with messages -> %v", tk.Error(), msg)
