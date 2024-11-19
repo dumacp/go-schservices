@@ -4,11 +4,10 @@ go 1.19
 
 replace github.com/nats-io/nats.go => ../../nats-io/nats.go
 
-replace github.com/dumacp/go-gwiot => ../go-gwiot
+//replace github.com/dumacp/go-gwiot => ../go-gwiot
 
 require (
 	github.com/coreos/go-oidc v2.2.1+incompatible
-	github.com/dumacp/go-gwiot v0.0.0-00010101000000-000000000000
 	github.com/dumacp/go-logs v0.0.1
 	github.com/eclipse/paho.mqtt.golang v1.4.2
 	golang.org/x/oauth2 v0.6.0
@@ -19,6 +18,7 @@ require (
 	github.com/asynkron/gofun v0.0.0-20220329210725-34fed760f4c2 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
+	github.com/dumacp/go-gwiot v0.0.0-20241118181849-c27018076aaa // indirect
 	github.com/emirpasic/gods v1.18.1 // indirect
 	github.com/go-logr/logr v1.2.4 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
