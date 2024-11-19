@@ -33,21 +33,30 @@ message route {
 	string name = 3;
 }
 
-message driver {
+message vehicle {
 	string id = 1;
-	string fullname = 2;
+	string plate = 2;
+	string internalNumber = 3;
+}
+
+message vehicleStats {
+	int32 inputCount = 1;
+	int32 outputcount = 2;
+	int32 totalInputCount = 3;
+	int32 totalOutputCount = 4;
+	int32 difference = 5;
 }
 
 message scheduleService {
-            string id = 1;
-            string state = 2;
-            string organizationId = 3;
-            int64 scheduleDateTime = 4;  //Unix Seconds 
-            itinerary itinenary = 5;
-            route route = 6;
-            driver driver = 7;
-            repeated string driverIds = 8;
-			checkpointTimingState checkpointTimingState = 9;
+    string id = 1;
+    string state = 2;
+    string organizationId = 3;
+    int64 scheduleDateTime = 4;  //Unix Seconds 
+    itinerary itinenary = 5;
+    route route = 6;
+    driver driver = 7;
+    repeated string driverIds = 8;
+	checkpointTimingState checkpointTimingState = 9;
 }
 
 message checkpointTimingState {
@@ -67,4 +76,28 @@ message mods {
     repeated scheduleService additions = 2;
     repeated scheduleService updates = 3;
     repeated scheduleService removals = 4;
+}
+
+message driver {
+	string id = 1;
+	string documentId = 2;
+	string document = 3;
+	string organizationId = 4;
+	string firstName = 5;
+	string lastName = 6;
+	string fullName = 7;
+	repeated string companyIds = 8;
+	repeated string roles = 9;
+	repeated string typeVehicles = 11;
+}
+
+message executedService {
+    string id = 1;
+    string state = 2;
+    string organizationId = 3;
+    int64 scheduleDateTime = 4;  //Unix Seconds 
+    itinerary itinenary = 5;
+    route route = 6;
+    driver driver = 7;
+	vehicle vehicle = 8;
 }

@@ -529,6 +529,738 @@ func (x *ServiceAllMsg) GetUpdates() []*ScheduleService {
 	return nil
 }
 
+type GetCompanyProgSvcMsg struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	CompanyId string `protobuf:"bytes,1,opt,name=companyId,proto3" json:"companyId,omitempty"`
+	RouteId   int32  `protobuf:"varint,2,opt,name=routeId,proto3" json:"routeId,omitempty"`
+	State     string `protobuf:"bytes,3,opt,name=state,proto3" json:"state,omitempty"`
+}
+
+func (x *GetCompanyProgSvcMsg) Reset() {
+	*x = GetCompanyProgSvcMsg{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_servicesmsg_proto_msgTypes[10]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *GetCompanyProgSvcMsg) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetCompanyProgSvcMsg) ProtoMessage() {}
+
+func (x *GetCompanyProgSvcMsg) ProtoReflect() protoreflect.Message {
+	mi := &file_servicesmsg_proto_msgTypes[10]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetCompanyProgSvcMsg.ProtoReflect.Descriptor instead.
+func (*GetCompanyProgSvcMsg) Descriptor() ([]byte, []int) {
+	return file_servicesmsg_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *GetCompanyProgSvcMsg) GetCompanyId() string {
+	if x != nil {
+		return x.CompanyId
+	}
+	return ""
+}
+
+func (x *GetCompanyProgSvcMsg) GetRouteId() int32 {
+	if x != nil {
+		return x.RouteId
+	}
+	return 0
+}
+
+func (x *GetCompanyProgSvcMsg) GetState() string {
+	if x != nil {
+		return x.State
+	}
+	return ""
+}
+
+type CompanyProgSvcMsg struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	ScheduledServices []*ScheduleService `protobuf:"bytes,1,rep,name=scheduledServices,proto3" json:"scheduledServices,omitempty"`
+}
+
+func (x *CompanyProgSvcMsg) Reset() {
+	*x = CompanyProgSvcMsg{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_servicesmsg_proto_msgTypes[11]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *CompanyProgSvcMsg) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CompanyProgSvcMsg) ProtoMessage() {}
+
+func (x *CompanyProgSvcMsg) ProtoReflect() protoreflect.Message {
+	mi := &file_servicesmsg_proto_msgTypes[11]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CompanyProgSvcMsg.ProtoReflect.Descriptor instead.
+func (*CompanyProgSvcMsg) Descriptor() ([]byte, []int) {
+	return file_servicesmsg_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *CompanyProgSvcMsg) GetScheduledServices() []*ScheduleService {
+	if x != nil {
+		return x.ScheduledServices
+	}
+	return nil
+}
+
+type GetCompanyDriverMsg struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	CompanyId string `protobuf:"bytes,1,opt,name=companyId,proto3" json:"companyId,omitempty"`
+	DriverDoc string `protobuf:"bytes,2,opt,name=driverDoc,proto3" json:"driverDoc,omitempty"`
+}
+
+func (x *GetCompanyDriverMsg) Reset() {
+	*x = GetCompanyDriverMsg{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_servicesmsg_proto_msgTypes[12]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *GetCompanyDriverMsg) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetCompanyDriverMsg) ProtoMessage() {}
+
+func (x *GetCompanyDriverMsg) ProtoReflect() protoreflect.Message {
+	mi := &file_servicesmsg_proto_msgTypes[12]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetCompanyDriverMsg.ProtoReflect.Descriptor instead.
+func (*GetCompanyDriverMsg) Descriptor() ([]byte, []int) {
+	return file_servicesmsg_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *GetCompanyDriverMsg) GetCompanyId() string {
+	if x != nil {
+		return x.CompanyId
+	}
+	return ""
+}
+
+func (x *GetCompanyDriverMsg) GetDriverDoc() string {
+	if x != nil {
+		return x.DriverDoc
+	}
+	return ""
+}
+
+type CompanyDriverMsg struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Driver *Driver `protobuf:"bytes,1,opt,name=driver,proto3" json:"driver,omitempty"`
+}
+
+func (x *CompanyDriverMsg) Reset() {
+	*x = CompanyDriverMsg{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_servicesmsg_proto_msgTypes[13]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *CompanyDriverMsg) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CompanyDriverMsg) ProtoMessage() {}
+
+func (x *CompanyDriverMsg) ProtoReflect() protoreflect.Message {
+	mi := &file_servicesmsg_proto_msgTypes[13]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CompanyDriverMsg.ProtoReflect.Descriptor instead.
+func (*CompanyDriverMsg) Descriptor() ([]byte, []int) {
+	return file_servicesmsg_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *CompanyDriverMsg) GetDriver() *Driver {
+	if x != nil {
+		return x.Driver
+	}
+	return nil
+}
+
+type TakeServiceMsg struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	DeviceId   string `protobuf:"bytes,1,opt,name=deviceId,proto3" json:"deviceId,omitempty"`
+	PlatformId string `protobuf:"bytes,2,opt,name=platformId,proto3" json:"platformId,omitempty"`
+	DriverId   string `protobuf:"bytes,3,opt,name=driverId,proto3" json:"driverId,omitempty"`
+	CompanyId  string `protobuf:"bytes,4,opt,name=companyId,proto3" json:"companyId,omitempty"`
+	ServiceId  string `protobuf:"bytes,5,opt,name=serviceId,proto3" json:"serviceId,omitempty"`
+	MessageId  string `protobuf:"bytes,6,opt,name=messageId,proto3" json:"messageId,omitempty"`
+}
+
+func (x *TakeServiceMsg) Reset() {
+	*x = TakeServiceMsg{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_servicesmsg_proto_msgTypes[14]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *TakeServiceMsg) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TakeServiceMsg) ProtoMessage() {}
+
+func (x *TakeServiceMsg) ProtoReflect() protoreflect.Message {
+	mi := &file_servicesmsg_proto_msgTypes[14]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TakeServiceMsg.ProtoReflect.Descriptor instead.
+func (*TakeServiceMsg) Descriptor() ([]byte, []int) {
+	return file_servicesmsg_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *TakeServiceMsg) GetDeviceId() string {
+	if x != nil {
+		return x.DeviceId
+	}
+	return ""
+}
+
+func (x *TakeServiceMsg) GetPlatformId() string {
+	if x != nil {
+		return x.PlatformId
+	}
+	return ""
+}
+
+func (x *TakeServiceMsg) GetDriverId() string {
+	if x != nil {
+		return x.DriverId
+	}
+	return ""
+}
+
+func (x *TakeServiceMsg) GetCompanyId() string {
+	if x != nil {
+		return x.CompanyId
+	}
+	return ""
+}
+
+func (x *TakeServiceMsg) GetServiceId() string {
+	if x != nil {
+		return x.ServiceId
+	}
+	return ""
+}
+
+func (x *TakeServiceMsg) GetMessageId() string {
+	if x != nil {
+		return x.MessageId
+	}
+	return ""
+}
+
+type TakeServiceResponseMsg struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Id       string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	DataCode int32  `protobuf:"varint,2,opt,name=dataCode,proto3" json:"dataCode,omitempty"`
+	DataMsg  string `protobuf:"bytes,3,opt,name=dataMsg,proto3" json:"dataMsg,omitempty"`
+	Error    string `protobuf:"bytes,5,opt,name=error,proto3" json:"error,omitempty"`
+}
+
+func (x *TakeServiceResponseMsg) Reset() {
+	*x = TakeServiceResponseMsg{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_servicesmsg_proto_msgTypes[15]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *TakeServiceResponseMsg) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TakeServiceResponseMsg) ProtoMessage() {}
+
+func (x *TakeServiceResponseMsg) ProtoReflect() protoreflect.Message {
+	mi := &file_servicesmsg_proto_msgTypes[15]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TakeServiceResponseMsg.ProtoReflect.Descriptor instead.
+func (*TakeServiceResponseMsg) Descriptor() ([]byte, []int) {
+	return file_servicesmsg_proto_rawDescGZIP(), []int{15}
+}
+
+func (x *TakeServiceResponseMsg) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *TakeServiceResponseMsg) GetDataCode() int32 {
+	if x != nil {
+		return x.DataCode
+	}
+	return 0
+}
+
+func (x *TakeServiceResponseMsg) GetDataMsg() string {
+	if x != nil {
+		return x.DataMsg
+	}
+	return ""
+}
+
+func (x *TakeServiceResponseMsg) GetError() string {
+	if x != nil {
+		return x.Error
+	}
+	return ""
+}
+
+type StartServiceMsg struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	DeviceId   string `protobuf:"bytes,1,opt,name=deviceId,proto3" json:"deviceId,omitempty"`
+	PlatformId string `protobuf:"bytes,2,opt,name=platformId,proto3" json:"platformId,omitempty"`
+	DriverId   string `protobuf:"bytes,3,opt,name=driverId,proto3" json:"driverId,omitempty"`
+	CompanyId  string `protobuf:"bytes,4,opt,name=companyId,proto3" json:"companyId,omitempty"`
+	ServiceId  string `protobuf:"bytes,5,opt,name=serviceId,proto3" json:"serviceId,omitempty"`
+	MessageId  string `protobuf:"bytes,6,opt,name=messageId,proto3" json:"messageId,omitempty"`
+}
+
+func (x *StartServiceMsg) Reset() {
+	*x = StartServiceMsg{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_servicesmsg_proto_msgTypes[16]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *StartServiceMsg) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StartServiceMsg) ProtoMessage() {}
+
+func (x *StartServiceMsg) ProtoReflect() protoreflect.Message {
+	mi := &file_servicesmsg_proto_msgTypes[16]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StartServiceMsg.ProtoReflect.Descriptor instead.
+func (*StartServiceMsg) Descriptor() ([]byte, []int) {
+	return file_servicesmsg_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *StartServiceMsg) GetDeviceId() string {
+	if x != nil {
+		return x.DeviceId
+	}
+	return ""
+}
+
+func (x *StartServiceMsg) GetPlatformId() string {
+	if x != nil {
+		return x.PlatformId
+	}
+	return ""
+}
+
+func (x *StartServiceMsg) GetDriverId() string {
+	if x != nil {
+		return x.DriverId
+	}
+	return ""
+}
+
+func (x *StartServiceMsg) GetCompanyId() string {
+	if x != nil {
+		return x.CompanyId
+	}
+	return ""
+}
+
+func (x *StartServiceMsg) GetServiceId() string {
+	if x != nil {
+		return x.ServiceId
+	}
+	return ""
+}
+
+func (x *StartServiceMsg) GetMessageId() string {
+	if x != nil {
+		return x.MessageId
+	}
+	return ""
+}
+
+type StartServiceResponseMsg struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Id       string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	DataCode int32  `protobuf:"varint,2,opt,name=dataCode,proto3" json:"dataCode,omitempty"`
+	DataMsg  string `protobuf:"bytes,3,opt,name=dataMsg,proto3" json:"dataMsg,omitempty"`
+	Error    string `protobuf:"bytes,5,opt,name=error,proto3" json:"error,omitempty"`
+}
+
+func (x *StartServiceResponseMsg) Reset() {
+	*x = StartServiceResponseMsg{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_servicesmsg_proto_msgTypes[17]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *StartServiceResponseMsg) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StartServiceResponseMsg) ProtoMessage() {}
+
+func (x *StartServiceResponseMsg) ProtoReflect() protoreflect.Message {
+	mi := &file_servicesmsg_proto_msgTypes[17]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StartServiceResponseMsg.ProtoReflect.Descriptor instead.
+func (*StartServiceResponseMsg) Descriptor() ([]byte, []int) {
+	return file_servicesmsg_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *StartServiceResponseMsg) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *StartServiceResponseMsg) GetDataCode() int32 {
+	if x != nil {
+		return x.DataCode
+	}
+	return 0
+}
+
+func (x *StartServiceResponseMsg) GetDataMsg() string {
+	if x != nil {
+		return x.DataMsg
+	}
+	return ""
+}
+
+func (x *StartServiceResponseMsg) GetError() string {
+	if x != nil {
+		return x.Error
+	}
+	return ""
+}
+
+type ExecutedServiceMsg struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Services []*ExecutedService `protobuf:"bytes,1,rep,name=services,proto3" json:"services,omitempty"`
+}
+
+func (x *ExecutedServiceMsg) Reset() {
+	*x = ExecutedServiceMsg{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_servicesmsg_proto_msgTypes[18]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ExecutedServiceMsg) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ExecutedServiceMsg) ProtoMessage() {}
+
+func (x *ExecutedServiceMsg) ProtoReflect() protoreflect.Message {
+	mi := &file_servicesmsg_proto_msgTypes[18]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ExecutedServiceMsg.ProtoReflect.Descriptor instead.
+func (*ExecutedServiceMsg) Descriptor() ([]byte, []int) {
+	return file_servicesmsg_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *ExecutedServiceMsg) GetServices() []*ExecutedService {
+	if x != nil {
+		return x.Services
+	}
+	return nil
+}
+
+type GetExecutedServiceMsg struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	DeviceId string `protobuf:"bytes,1,opt,name=deviceId,proto3" json:"deviceId,omitempty"`
+}
+
+func (x *GetExecutedServiceMsg) Reset() {
+	*x = GetExecutedServiceMsg{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_servicesmsg_proto_msgTypes[19]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *GetExecutedServiceMsg) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetExecutedServiceMsg) ProtoMessage() {}
+
+func (x *GetExecutedServiceMsg) ProtoReflect() protoreflect.Message {
+	mi := &file_servicesmsg_proto_msgTypes[19]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetExecutedServiceMsg.ProtoReflect.Descriptor instead.
+func (*GetExecutedServiceMsg) Descriptor() ([]byte, []int) {
+	return file_servicesmsg_proto_rawDescGZIP(), []int{19}
+}
+
+func (x *GetExecutedServiceMsg) GetDeviceId() string {
+	if x != nil {
+		return x.DeviceId
+	}
+	return ""
+}
+
+type GetVehProgSvcMsg struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	DeviceId       string `protobuf:"bytes,1,opt,name=deviceId,proto3" json:"deviceId,omitempty"`
+	DriverId       string `protobuf:"bytes,2,opt,name=driverId,proto3" json:"driverId,omitempty"`
+	DriverDocument string `protobuf:"bytes,3,opt,name=driverDocument,proto3" json:"driverDocument,omitempty"`
+}
+
+func (x *GetVehProgSvcMsg) Reset() {
+	*x = GetVehProgSvcMsg{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_servicesmsg_proto_msgTypes[20]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *GetVehProgSvcMsg) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetVehProgSvcMsg) ProtoMessage() {}
+
+func (x *GetVehProgSvcMsg) ProtoReflect() protoreflect.Message {
+	mi := &file_servicesmsg_proto_msgTypes[20]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetVehProgSvcMsg.ProtoReflect.Descriptor instead.
+func (*GetVehProgSvcMsg) Descriptor() ([]byte, []int) {
+	return file_servicesmsg_proto_rawDescGZIP(), []int{20}
+}
+
+func (x *GetVehProgSvcMsg) GetDeviceId() string {
+	if x != nil {
+		return x.DeviceId
+	}
+	return ""
+}
+
+func (x *GetVehProgSvcMsg) GetDriverId() string {
+	if x != nil {
+		return x.DriverId
+	}
+	return ""
+}
+
+func (x *GetVehProgSvcMsg) GetDriverDocument() string {
+	if x != nil {
+		return x.DriverDocument
+	}
+	return ""
+}
+
+type VehProgSvcMsg struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	ScheduledServices []*ScheduleService `protobuf:"bytes,1,rep,name=scheduledServices,proto3" json:"scheduledServices,omitempty"`
+}
+
+func (x *VehProgSvcMsg) Reset() {
+	*x = VehProgSvcMsg{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_servicesmsg_proto_msgTypes[21]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *VehProgSvcMsg) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*VehProgSvcMsg) ProtoMessage() {}
+
+func (x *VehProgSvcMsg) ProtoReflect() protoreflect.Message {
+	mi := &file_servicesmsg_proto_msgTypes[21]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use VehProgSvcMsg.ProtoReflect.Descriptor instead.
+func (*VehProgSvcMsg) Descriptor() ([]byte, []int) {
+	return file_servicesmsg_proto_rawDescGZIP(), []int{21}
+}
+
+func (x *VehProgSvcMsg) GetScheduledServices() []*ScheduleService {
+	if x != nil {
+		return x.ScheduledServices
+	}
+	return nil
+}
+
 var File_servicesmsg_proto protoreflect.FileDescriptor
 
 var file_servicesmsg_proto_rawDesc = []byte{
@@ -574,11 +1306,92 @@ var file_servicesmsg_proto_rawDesc = []byte{
 	0x6c, 0x6c, 0x4d, 0x73, 0x67, 0x12, 0x33, 0x0a, 0x07, 0x75, 0x70, 0x64, 0x61, 0x74, 0x65, 0x73,
 	0x18, 0x01, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x19, 0x2e, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65,
 	0x73, 0x2e, 0x73, 0x63, 0x68, 0x65, 0x64, 0x75, 0x6c, 0x65, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63,
-	0x65, 0x52, 0x07, 0x75, 0x70, 0x64, 0x61, 0x74, 0x65, 0x73, 0x42, 0x2f, 0x5a, 0x2d, 0x67, 0x69,
-	0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x64, 0x75, 0x6d, 0x61, 0x63, 0x70, 0x2f,
-	0x67, 0x6f, 0x2d, 0x73, 0x63, 0x68, 0x73, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x73, 0x2f, 0x61,
-	0x70, 0x69, 0x2f, 0x73, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x73, 0x62, 0x06, 0x70, 0x72, 0x6f,
-	0x74, 0x6f, 0x33,
+	0x65, 0x52, 0x07, 0x75, 0x70, 0x64, 0x61, 0x74, 0x65, 0x73, 0x22, 0x64, 0x0a, 0x14, 0x67, 0x65,
+	0x74, 0x43, 0x6f, 0x6d, 0x70, 0x61, 0x6e, 0x79, 0x50, 0x72, 0x6f, 0x67, 0x53, 0x76, 0x63, 0x4d,
+	0x73, 0x67, 0x12, 0x1c, 0x0a, 0x09, 0x63, 0x6f, 0x6d, 0x70, 0x61, 0x6e, 0x79, 0x49, 0x64, 0x18,
+	0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x09, 0x63, 0x6f, 0x6d, 0x70, 0x61, 0x6e, 0x79, 0x49, 0x64,
+	0x12, 0x18, 0x0a, 0x07, 0x72, 0x6f, 0x75, 0x74, 0x65, 0x49, 0x64, 0x18, 0x02, 0x20, 0x01, 0x28,
+	0x05, 0x52, 0x07, 0x72, 0x6f, 0x75, 0x74, 0x65, 0x49, 0x64, 0x12, 0x14, 0x0a, 0x05, 0x73, 0x74,
+	0x61, 0x74, 0x65, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x73, 0x74, 0x61, 0x74, 0x65,
+	0x22, 0x5c, 0x0a, 0x11, 0x63, 0x6f, 0x6d, 0x70, 0x61, 0x6e, 0x79, 0x50, 0x72, 0x6f, 0x67, 0x53,
+	0x76, 0x63, 0x4d, 0x73, 0x67, 0x12, 0x47, 0x0a, 0x11, 0x73, 0x63, 0x68, 0x65, 0x64, 0x75, 0x6c,
+	0x65, 0x64, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28, 0x0b,
+	0x32, 0x19, 0x2e, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x73, 0x63, 0x68, 0x65,
+	0x64, 0x75, 0x6c, 0x65, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x52, 0x11, 0x73, 0x63, 0x68,
+	0x65, 0x64, 0x75, 0x6c, 0x65, 0x64, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x73, 0x22, 0x51,
+	0x0a, 0x13, 0x67, 0x65, 0x74, 0x43, 0x6f, 0x6d, 0x70, 0x61, 0x6e, 0x79, 0x44, 0x72, 0x69, 0x76,
+	0x65, 0x72, 0x4d, 0x73, 0x67, 0x12, 0x1c, 0x0a, 0x09, 0x63, 0x6f, 0x6d, 0x70, 0x61, 0x6e, 0x79,
+	0x49, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x09, 0x63, 0x6f, 0x6d, 0x70, 0x61, 0x6e,
+	0x79, 0x49, 0x64, 0x12, 0x1c, 0x0a, 0x09, 0x64, 0x72, 0x69, 0x76, 0x65, 0x72, 0x44, 0x6f, 0x63,
+	0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x09, 0x64, 0x72, 0x69, 0x76, 0x65, 0x72, 0x44, 0x6f,
+	0x63, 0x22, 0x3c, 0x0a, 0x10, 0x63, 0x6f, 0x6d, 0x70, 0x61, 0x6e, 0x79, 0x44, 0x72, 0x69, 0x76,
+	0x65, 0x72, 0x4d, 0x73, 0x67, 0x12, 0x28, 0x0a, 0x06, 0x64, 0x72, 0x69, 0x76, 0x65, 0x72, 0x18,
+	0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x10, 0x2e, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73,
+	0x2e, 0x64, 0x72, 0x69, 0x76, 0x65, 0x72, 0x52, 0x06, 0x64, 0x72, 0x69, 0x76, 0x65, 0x72, 0x22,
+	0xc2, 0x01, 0x0a, 0x0e, 0x74, 0x61, 0x6b, 0x65, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x4d,
+	0x73, 0x67, 0x12, 0x1a, 0x0a, 0x08, 0x64, 0x65, 0x76, 0x69, 0x63, 0x65, 0x49, 0x64, 0x18, 0x01,
+	0x20, 0x01, 0x28, 0x09, 0x52, 0x08, 0x64, 0x65, 0x76, 0x69, 0x63, 0x65, 0x49, 0x64, 0x12, 0x1e,
+	0x0a, 0x0a, 0x70, 0x6c, 0x61, 0x74, 0x66, 0x6f, 0x72, 0x6d, 0x49, 0x64, 0x18, 0x02, 0x20, 0x01,
+	0x28, 0x09, 0x52, 0x0a, 0x70, 0x6c, 0x61, 0x74, 0x66, 0x6f, 0x72, 0x6d, 0x49, 0x64, 0x12, 0x1a,
+	0x0a, 0x08, 0x64, 0x72, 0x69, 0x76, 0x65, 0x72, 0x49, 0x64, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09,
+	0x52, 0x08, 0x64, 0x72, 0x69, 0x76, 0x65, 0x72, 0x49, 0x64, 0x12, 0x1c, 0x0a, 0x09, 0x63, 0x6f,
+	0x6d, 0x70, 0x61, 0x6e, 0x79, 0x49, 0x64, 0x18, 0x04, 0x20, 0x01, 0x28, 0x09, 0x52, 0x09, 0x63,
+	0x6f, 0x6d, 0x70, 0x61, 0x6e, 0x79, 0x49, 0x64, 0x12, 0x1c, 0x0a, 0x09, 0x73, 0x65, 0x72, 0x76,
+	0x69, 0x63, 0x65, 0x49, 0x64, 0x18, 0x05, 0x20, 0x01, 0x28, 0x09, 0x52, 0x09, 0x73, 0x65, 0x72,
+	0x76, 0x69, 0x63, 0x65, 0x49, 0x64, 0x12, 0x1c, 0x0a, 0x09, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67,
+	0x65, 0x49, 0x64, 0x18, 0x06, 0x20, 0x01, 0x28, 0x09, 0x52, 0x09, 0x6d, 0x65, 0x73, 0x73, 0x61,
+	0x67, 0x65, 0x49, 0x64, 0x22, 0x74, 0x0a, 0x16, 0x74, 0x61, 0x6b, 0x65, 0x53, 0x65, 0x72, 0x76,
+	0x69, 0x63, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x4d, 0x73, 0x67, 0x12, 0x0e,
+	0x0a, 0x02, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x02, 0x69, 0x64, 0x12, 0x1a,
+	0x0a, 0x08, 0x64, 0x61, 0x74, 0x61, 0x43, 0x6f, 0x64, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x05,
+	0x52, 0x08, 0x64, 0x61, 0x74, 0x61, 0x43, 0x6f, 0x64, 0x65, 0x12, 0x18, 0x0a, 0x07, 0x64, 0x61,
+	0x74, 0x61, 0x4d, 0x73, 0x67, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x64, 0x61, 0x74,
+	0x61, 0x4d, 0x73, 0x67, 0x12, 0x14, 0x0a, 0x05, 0x65, 0x72, 0x72, 0x6f, 0x72, 0x18, 0x05, 0x20,
+	0x01, 0x28, 0x09, 0x52, 0x05, 0x65, 0x72, 0x72, 0x6f, 0x72, 0x22, 0xc3, 0x01, 0x0a, 0x0f, 0x73,
+	0x74, 0x61, 0x72, 0x74, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x4d, 0x73, 0x67, 0x12, 0x1a,
+	0x0a, 0x08, 0x64, 0x65, 0x76, 0x69, 0x63, 0x65, 0x49, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09,
+	0x52, 0x08, 0x64, 0x65, 0x76, 0x69, 0x63, 0x65, 0x49, 0x64, 0x12, 0x1e, 0x0a, 0x0a, 0x70, 0x6c,
+	0x61, 0x74, 0x66, 0x6f, 0x72, 0x6d, 0x49, 0x64, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0a,
+	0x70, 0x6c, 0x61, 0x74, 0x66, 0x6f, 0x72, 0x6d, 0x49, 0x64, 0x12, 0x1a, 0x0a, 0x08, 0x64, 0x72,
+	0x69, 0x76, 0x65, 0x72, 0x49, 0x64, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x52, 0x08, 0x64, 0x72,
+	0x69, 0x76, 0x65, 0x72, 0x49, 0x64, 0x12, 0x1c, 0x0a, 0x09, 0x63, 0x6f, 0x6d, 0x70, 0x61, 0x6e,
+	0x79, 0x49, 0x64, 0x18, 0x04, 0x20, 0x01, 0x28, 0x09, 0x52, 0x09, 0x63, 0x6f, 0x6d, 0x70, 0x61,
+	0x6e, 0x79, 0x49, 0x64, 0x12, 0x1c, 0x0a, 0x09, 0x73, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x49,
+	0x64, 0x18, 0x05, 0x20, 0x01, 0x28, 0x09, 0x52, 0x09, 0x73, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65,
+	0x49, 0x64, 0x12, 0x1c, 0x0a, 0x09, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x49, 0x64, 0x18,
+	0x06, 0x20, 0x01, 0x28, 0x09, 0x52, 0x09, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x49, 0x64,
+	0x22, 0x75, 0x0a, 0x17, 0x73, 0x74, 0x61, 0x72, 0x74, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65,
+	0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x4d, 0x73, 0x67, 0x12, 0x0e, 0x0a, 0x02, 0x69,
+	0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x02, 0x69, 0x64, 0x12, 0x1a, 0x0a, 0x08, 0x64,
+	0x61, 0x74, 0x61, 0x43, 0x6f, 0x64, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x05, 0x52, 0x08, 0x64,
+	0x61, 0x74, 0x61, 0x43, 0x6f, 0x64, 0x65, 0x12, 0x18, 0x0a, 0x07, 0x64, 0x61, 0x74, 0x61, 0x4d,
+	0x73, 0x67, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x64, 0x61, 0x74, 0x61, 0x4d, 0x73,
+	0x67, 0x12, 0x14, 0x0a, 0x05, 0x65, 0x72, 0x72, 0x6f, 0x72, 0x18, 0x05, 0x20, 0x01, 0x28, 0x09,
+	0x52, 0x05, 0x65, 0x72, 0x72, 0x6f, 0x72, 0x22, 0x4b, 0x0a, 0x12, 0x65, 0x78, 0x65, 0x63, 0x75,
+	0x74, 0x65, 0x64, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x4d, 0x73, 0x67, 0x12, 0x35, 0x0a,
+	0x08, 0x73, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28, 0x0b, 0x32,
+	0x19, 0x2e, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x65, 0x78, 0x65, 0x63, 0x75,
+	0x74, 0x65, 0x64, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x52, 0x08, 0x73, 0x65, 0x72, 0x76,
+	0x69, 0x63, 0x65, 0x73, 0x22, 0x33, 0x0a, 0x15, 0x67, 0x65, 0x74, 0x45, 0x78, 0x65, 0x63, 0x75,
+	0x74, 0x65, 0x64, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x4d, 0x73, 0x67, 0x12, 0x1a, 0x0a,
+	0x08, 0x64, 0x65, 0x76, 0x69, 0x63, 0x65, 0x49, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52,
+	0x08, 0x64, 0x65, 0x76, 0x69, 0x63, 0x65, 0x49, 0x64, 0x22, 0x72, 0x0a, 0x10, 0x67, 0x65, 0x74,
+	0x56, 0x65, 0x68, 0x50, 0x72, 0x6f, 0x67, 0x53, 0x76, 0x63, 0x4d, 0x73, 0x67, 0x12, 0x1a, 0x0a,
+	0x08, 0x64, 0x65, 0x76, 0x69, 0x63, 0x65, 0x49, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52,
+	0x08, 0x64, 0x65, 0x76, 0x69, 0x63, 0x65, 0x49, 0x64, 0x12, 0x1a, 0x0a, 0x08, 0x64, 0x72, 0x69,
+	0x76, 0x65, 0x72, 0x49, 0x64, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x08, 0x64, 0x72, 0x69,
+	0x76, 0x65, 0x72, 0x49, 0x64, 0x12, 0x26, 0x0a, 0x0e, 0x64, 0x72, 0x69, 0x76, 0x65, 0x72, 0x44,
+	0x6f, 0x63, 0x75, 0x6d, 0x65, 0x6e, 0x74, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0e, 0x64,
+	0x72, 0x69, 0x76, 0x65, 0x72, 0x44, 0x6f, 0x63, 0x75, 0x6d, 0x65, 0x6e, 0x74, 0x22, 0x58, 0x0a,
+	0x0d, 0x76, 0x65, 0x68, 0x50, 0x72, 0x6f, 0x67, 0x53, 0x76, 0x63, 0x4d, 0x73, 0x67, 0x12, 0x47,
+	0x0a, 0x11, 0x73, 0x63, 0x68, 0x65, 0x64, 0x75, 0x6c, 0x65, 0x64, 0x53, 0x65, 0x72, 0x76, 0x69,
+	0x63, 0x65, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x19, 0x2e, 0x6d, 0x65, 0x73, 0x73,
+	0x61, 0x67, 0x65, 0x73, 0x2e, 0x73, 0x63, 0x68, 0x65, 0x64, 0x75, 0x6c, 0x65, 0x53, 0x65, 0x72,
+	0x76, 0x69, 0x63, 0x65, 0x52, 0x11, 0x73, 0x63, 0x68, 0x65, 0x64, 0x75, 0x6c, 0x65, 0x64, 0x53,
+	0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x73, 0x42, 0x2f, 0x5a, 0x2d, 0x67, 0x69, 0x74, 0x68, 0x75,
+	0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x64, 0x75, 0x6d, 0x61, 0x63, 0x70, 0x2f, 0x67, 0x6f, 0x2d,
+	0x73, 0x63, 0x68, 0x73, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x73, 0x2f, 0x61, 0x70, 0x69, 0x2f,
+	0x73, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x73, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -593,30 +1406,48 @@ func file_servicesmsg_proto_rawDescGZIP() []byte {
 	return file_servicesmsg_proto_rawDescData
 }
 
-var file_servicesmsg_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
+var file_servicesmsg_proto_msgTypes = make([]protoimpl.MessageInfo, 22)
 var file_servicesmsg_proto_goTypes = []interface{}{
-	(*DiscoverSch)(nil),         // 0: messages.DiscoverSch
-	(*DiscoverResponseSch)(nil), // 1: messages.DiscoverResponseSch
-	(*SubscribeSch)(nil),        // 2: messages.SubscribeSch
-	(*ExternalServiceSch)(nil),  // 3: messages.ExternalServiceSch
-	(*RequestStatusSch)(nil),    // 4: messages.RequestStatusSch
-	(*StatusSch)(nil),           // 5: messages.StatusSch
-	(*UpdateServiceMsg)(nil),    // 6: messages.updateServiceMsg
-	(*RemoveServiceMsg)(nil),    // 7: messages.removeServiceMsg
-	(*ServiceMsg)(nil),          // 8: messages.serviceMsg
-	(*ServiceAllMsg)(nil),       // 9: messages.serviceAllMsg
-	(*ScheduleService)(nil),     // 10: messages.scheduleService
+	(*DiscoverSch)(nil),             // 0: messages.DiscoverSch
+	(*DiscoverResponseSch)(nil),     // 1: messages.DiscoverResponseSch
+	(*SubscribeSch)(nil),            // 2: messages.SubscribeSch
+	(*ExternalServiceSch)(nil),      // 3: messages.ExternalServiceSch
+	(*RequestStatusSch)(nil),        // 4: messages.RequestStatusSch
+	(*StatusSch)(nil),               // 5: messages.StatusSch
+	(*UpdateServiceMsg)(nil),        // 6: messages.updateServiceMsg
+	(*RemoveServiceMsg)(nil),        // 7: messages.removeServiceMsg
+	(*ServiceMsg)(nil),              // 8: messages.serviceMsg
+	(*ServiceAllMsg)(nil),           // 9: messages.serviceAllMsg
+	(*GetCompanyProgSvcMsg)(nil),    // 10: messages.getCompanyProgSvcMsg
+	(*CompanyProgSvcMsg)(nil),       // 11: messages.companyProgSvcMsg
+	(*GetCompanyDriverMsg)(nil),     // 12: messages.getCompanyDriverMsg
+	(*CompanyDriverMsg)(nil),        // 13: messages.companyDriverMsg
+	(*TakeServiceMsg)(nil),          // 14: messages.takeServiceMsg
+	(*TakeServiceResponseMsg)(nil),  // 15: messages.takeServiceResponseMsg
+	(*StartServiceMsg)(nil),         // 16: messages.startServiceMsg
+	(*StartServiceResponseMsg)(nil), // 17: messages.startServiceResponseMsg
+	(*ExecutedServiceMsg)(nil),      // 18: messages.executedServiceMsg
+	(*GetExecutedServiceMsg)(nil),   // 19: messages.getExecutedServiceMsg
+	(*GetVehProgSvcMsg)(nil),        // 20: messages.getVehProgSvcMsg
+	(*VehProgSvcMsg)(nil),           // 21: messages.vehProgSvcMsg
+	(*ScheduleService)(nil),         // 22: messages.scheduleService
+	(*Driver)(nil),                  // 23: messages.driver
+	(*ExecutedService)(nil),         // 24: messages.executedService
 }
 var file_servicesmsg_proto_depIdxs = []int32{
-	10, // 0: messages.updateServiceMsg.update:type_name -> messages.scheduleService
-	10, // 1: messages.removeServiceMsg.update:type_name -> messages.scheduleService
-	10, // 2: messages.serviceMsg.update:type_name -> messages.scheduleService
-	10, // 3: messages.serviceAllMsg.updates:type_name -> messages.scheduleService
-	4,  // [4:4] is the sub-list for method output_type
-	4,  // [4:4] is the sub-list for method input_type
-	4,  // [4:4] is the sub-list for extension type_name
-	4,  // [4:4] is the sub-list for extension extendee
-	0,  // [0:4] is the sub-list for field type_name
+	22, // 0: messages.updateServiceMsg.update:type_name -> messages.scheduleService
+	22, // 1: messages.removeServiceMsg.update:type_name -> messages.scheduleService
+	22, // 2: messages.serviceMsg.update:type_name -> messages.scheduleService
+	22, // 3: messages.serviceAllMsg.updates:type_name -> messages.scheduleService
+	22, // 4: messages.companyProgSvcMsg.scheduledServices:type_name -> messages.scheduleService
+	23, // 5: messages.companyDriverMsg.driver:type_name -> messages.driver
+	24, // 6: messages.executedServiceMsg.services:type_name -> messages.executedService
+	22, // 7: messages.vehProgSvcMsg.scheduledServices:type_name -> messages.scheduleService
+	8,  // [8:8] is the sub-list for method output_type
+	8,  // [8:8] is the sub-list for method input_type
+	8,  // [8:8] is the sub-list for extension type_name
+	8,  // [8:8] is the sub-list for extension extendee
+	0,  // [0:8] is the sub-list for field type_name
 }
 
 func init() { file_servicesmsg_proto_init() }
@@ -746,6 +1577,150 @@ func file_servicesmsg_proto_init() {
 				return nil
 			}
 		}
+		file_servicesmsg_proto_msgTypes[10].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*GetCompanyProgSvcMsg); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_servicesmsg_proto_msgTypes[11].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*CompanyProgSvcMsg); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_servicesmsg_proto_msgTypes[12].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*GetCompanyDriverMsg); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_servicesmsg_proto_msgTypes[13].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*CompanyDriverMsg); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_servicesmsg_proto_msgTypes[14].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*TakeServiceMsg); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_servicesmsg_proto_msgTypes[15].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*TakeServiceResponseMsg); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_servicesmsg_proto_msgTypes[16].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*StartServiceMsg); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_servicesmsg_proto_msgTypes[17].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*StartServiceResponseMsg); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_servicesmsg_proto_msgTypes[18].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ExecutedServiceMsg); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_servicesmsg_proto_msgTypes[19].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*GetExecutedServiceMsg); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_servicesmsg_proto_msgTypes[20].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*GetVehProgSvcMsg); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_servicesmsg_proto_msgTypes[21].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*VehProgSvcMsg); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -753,7 +1728,7 @@ func file_servicesmsg_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_servicesmsg_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   10,
+			NumMessages:   22,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

@@ -29,6 +29,7 @@ type Actor struct {
 	pidNats        *actor.PID
 	pidDiscovery   *actor.PID
 	evs            *eventstream.EventStream
+	watchKeys      map[string]string
 	subscriptors   map[string]*eventstream.Subscription
 	lastvalue      *gwiotmsg.KvEntryMessage
 	cancel         func()
@@ -36,13 +37,17 @@ type Actor struct {
 	// db             database.DBservice
 }
 
-func NewActor(id string, actorDiscovery actor.Actor) actor.Actor {
+func NewActor(id string, actorDiscovery actor.Actor) *Actor {
 	if len(id) == 0 {
 		id = utils.Hostname()
 	}
 	a := &Actor{id: id}
 	a.actorDiscovery = actorDiscovery
 	return a
+}
+
+func (a *Actor) AddWatchKey(key string) {
+	a.watchKeys[key] = key
 }
 
 func subscribe(ctx actor.Context, evs *eventstream.EventStream) *eventstream.Subscription {
@@ -69,7 +74,7 @@ func (a *Actor) Receive(ctx actor.Context) {
 	case *actor.Started:
 
 		if a.actorDiscovery != nil {
-			if pid, err := ctx.SpawnNamed(actor.PropsFromFunc(a.actorDiscovery.Receive), "discover-actor"); err != nil {
+			if pid, err := ctx.SpawnNamed(actor.PropsFromFunc(a.actorDiscovery.Receive), "discover-shcsvc-actor"); err != nil {
 				time.Sleep(3 * time.Second)
 				logs.LogError.Panicf("spawn discover actor error: %s", err)
 			} else {
@@ -160,6 +165,62 @@ func (a *Actor) Receive(ctx actor.Context) {
 		} else if !a.connected {
 			ctx.Request(a.pidNats, &gwiotmsg.StatusConnRequest{})
 		}
+	case *gwiotmsg.HttpPostRequest:
+		if ctx.Sender() == nil {
+			break
+		}
+		if a.pidNats != nil {
+			res, err := ctx.RequestFuture(a.pidNats, msg, 10*time.Second).Result()
+			if err != nil {
+				logs.LogWarn.Printf("error request http: %s", err)
+				break
+			}
+			switch resi := res.(type) {
+			case *gwiotmsg.HttpPostResponse:
+				ctx.Respond(resi)
+			default:
+				logs.LogWarn.Printf("error response http: %T", res)
+			}
+		} else {
+			ctx.Respond(&gwiotmsg.HttpPostResponse{
+				Error: "not connected",
+			})
+		}
+	case *gwiotmsg.ListKeysBucket:
+		if ctx.Sender() == nil {
+			break
+		}
+		if a.pidNats != nil {
+			res, err := ctx.RequestFuture(a.pidNats, msg, time.Second).Result()
+			if err != nil {
+				logs.LogWarn.Printf("error request keys: %s", err)
+				break
+			}
+			switch resi := res.(type) {
+			case *gwiotmsg.KeysBucket:
+				ctx.Respond(resi)
+			default:
+				logs.LogWarn.Printf("error response keys: %T", res)
+			}
+		}
+	case *gwiotmsg.GetKeyValue:
+		if ctx.Sender() == nil {
+			break
+		}
+		if a.pidNats != nil {
+			res, err := ctx.RequestFuture(a.pidNats, msg, 3*time.Second).Result()
+			if err != nil {
+				logs.LogWarn.Printf("error request key: %s", err)
+				break
+			}
+			switch resi := res.(type) {
+			case *gwiotmsg.KvEntryMessage:
+				ctx.Respond(resi)
+			default:
+				logs.LogWarn.Printf("error response key: %T", res)
+				ctx.Respond(fmt.Errorf("error response key: %s", res))
+			}
+		}
 	case *gwiotmsg.WatchKeyValue:
 		if a.pidNats != nil {
 			ctx.Request(a.pidNats, msg)
@@ -189,11 +250,12 @@ func (a *Actor) Receive(ctx actor.Context) {
 		ctx.Send(ctx.Self(), &tickmsg{})
 
 	case *gwiotmsg.WatchMessage:
+		fmt.Printf("watch message: %q (%q)\n", msg.GetKvEntryMessage().GetBucket(), msg.GetKvEntryMessage().GetKey())
 		if !a.connected {
 			ctx.Send(ctx.Self(), &gwiotmsg.Connected{})
 		}
 		mss := msg.GetKvEntryMessage()
-		if a.lastvalue != nil && a.lastvalue.Rev >= mss.Rev {
+		if a.lastvalue != nil && a.lastvalue.Rev == mss.Rev {
 			logs.LogWarn.Printf("same Rev in message: %d", mss.Rev)
 			break
 		}
