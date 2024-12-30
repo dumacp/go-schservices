@@ -44,7 +44,7 @@ func GetENV() {
 
 	fmt.Printf("keycloakurl: %s\n", KeycloakUrl)
 	fmt.Printf("redirecturl: %s\n", RedirectUrl)
-	fmt.Printf("remoteMqttBrokerURL: %s\n", Url)
+	fmt.Printf("url: %s\n", Url)
 	fmt.Printf("realm: %s\n", Realm)
 	fmt.Printf("clientSecret: %s\n", ClientSecret)
 	fmt.Printf("clientid: %s\n", Clientid)

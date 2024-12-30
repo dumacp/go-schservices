@@ -244,7 +244,27 @@ func (a *Actor) Receive(ctx actor.Context) {
 			fmt.Printf("error request: %s\n", resResponse)
 
 			if len(resResponse.Error) > 0 {
-				ctx.Respond(&services.TakeServiceResponseMsg{Error: resResponse.Error})
+				// Encuentra y extrae el JSON anidado
+				start := strings.Index(resResponse.Error, "resp: {")
+				if start != -1 {
+					// Encuentra el contenido JSON de 'resp'
+					respJSON := resResponse.Error[start+6:] // +6 para omitir "resp: "
+					respJSON = strings.TrimSpace(respJSON)
+					type RespDetails struct {
+						Name string `json:"name"`
+						Code int    `json:"code"`
+						Msg  string `json:"msg"`
+					}
+					var details RespDetails
+					err = json.Unmarshal([]byte(respJSON), &details)
+					if err != nil {
+						fmt.Println("Error al deserializar el JSON de 'resp':", err)
+						return
+					}
+					ctx.Respond(&services.TakeServiceResponseMsg{Error: respJSON})
+				} else {
+					ctx.Respond(&services.TakeServiceResponseMsg{Error: resResponse.Error})
+				}
 			} else if resResponse.Code == 200 {
 				resTake := new(CommandResponse)
 				if err := json.Unmarshal(resResponse.Data, resTake); err != nil {

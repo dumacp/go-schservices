@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/asynkron/protoactor-go/actor"
@@ -177,7 +178,30 @@ func (a *Actor) Receive(ctx actor.Context) {
 			}
 			switch resi := res.(type) {
 			case *gwiotmsg.HttpPostResponse:
-				ctx.Respond(resi)
+				if len(resi.Error) > 0 {
+					start := strings.Index(resi.Error, "resp: {")
+					if start == -1 {
+						ctx.Respond(resi)
+					} else {
+						// Encuentra el contenido JSON de 'resp'
+						respJSON := resi.Error[start+6:] // +6 para omitir "resp: "
+						respJSON = strings.TrimSpace(respJSON)
+						type RespDetails struct {
+							Name string `json:"name"`
+							Code int    `json:"code"`
+							Msg  string `json:"msg"`
+						}
+						var details RespDetails
+						err = json.Unmarshal([]byte(respJSON), &details)
+						if err != nil {
+							ctx.Respond(resi)
+						} else {
+							ctx.Respond(&services.TakeServiceResponseMsg{Error: details.Msg})
+						}
+					}
+				} else {
+					ctx.Respond(resi)
+				}
 			default:
 				logs.LogWarn.Printf("error response http: %T", res)
 			}

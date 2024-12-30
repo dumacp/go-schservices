@@ -21,7 +21,7 @@ const (
 
 const (
 	port    = 8090
-	version = "1.1.0"
+	version = "1.1.4"
 )
 
 var (
