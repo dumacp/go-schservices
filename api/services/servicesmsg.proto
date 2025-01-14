@@ -48,6 +48,7 @@ message getCompanyProgSvcMsg {
 	string companyId = 1;
 	int32 routeId = 2;
 	string state = 3;
+	string deviceId = 4;
 }
 message companyProgSvcMsg {
 	repeated scheduleService scheduledServices = 1;

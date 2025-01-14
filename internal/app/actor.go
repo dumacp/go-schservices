@@ -343,6 +343,58 @@ func (a *Actor) Receive(ctx actor.Context) {
 			ctx.Respond(fmt.Errorf("error: data actor not found"))
 			break
 		}
+
+		if res, err := ctx.RequestFuture(a.pidData, &gwiotmsg.HttpGetRequest{
+			Url: fmt.Sprintf("%s%s%s", a.url, constan.URL_SVC_SCHEDULING, msg.GetDeviceId()),
+		}, 10*time.Second).Result(); err != nil {
+			fmt.Printf("error request 34: %s\n", err)
+			ctx.Respond(err)
+			break
+		} else if resResponse, ok := res.(*gwiotmsg.HttpGetResponse); ok {
+			fmt.Printf("error request: %s\n", resResponse)
+
+			if len(resResponse.Error) > 0 {
+				// Encuentra y extrae el JSON anidado
+				start := strings.Index(resResponse.Error, "resp: {")
+				if start != -1 {
+					// Encuentra el contenido JSON de 'resp'
+					respJSON := resResponse.Error[start+6:] // +6 para omitir "resp: "
+					respJSON = strings.TrimSpace(respJSON)
+					type RespDetails struct {
+						Name string `json:"name"`
+						Code int    `json:"code"`
+						Msg  string `json:"msg"`
+					}
+					var details RespDetails
+					err = json.Unmarshal([]byte(respJSON), &details)
+					if err != nil {
+						fmt.Println("Error al deserializar el JSON de 'resp':", err)
+						return
+					}
+					ctx.Respond(&services.TakeServiceResponseMsg{Error: respJSON})
+				} else {
+					ctx.Respond(&services.TakeServiceResponseMsg{Error: resResponse.Error})
+				}
+			} else if resResponse.Code == 200 {
+				ctx.Respond(&services.TakeServiceResponseMsg{
+					DataCode: int32(resResponse.Code),
+					DataMsg:  string(resResponse.Data),
+					Error:    "",
+				})
+			} else {
+				ctx.Respond(&services.TakeServiceResponseMsg{
+					Error:    fmt.Sprintf("error response: %d, %s", resResponse.Code, resResponse.GetData()),
+					DataCode: int32(resResponse.Code),
+					DataMsg:  string(resResponse.Data),
+				})
+			}
+		} else {
+			ctx.Respond(&services.TakeServiceResponseMsg{
+				Error: fmt.Sprintf("error response: %T", res),
+			})
+		}
+
+		/**
 		res, err := ctx.RequestFuture(a.pidData, &gwiotmsg.GetKeyValue{
 			Key:    msg.GetCompanyId(),
 			Bucket: constan.SUBJECT_SVC_COMPNAY_SNAPSHOT,
@@ -388,6 +440,7 @@ func (a *Actor) Receive(ctx actor.Context) {
 		default:
 			ctx.Respond(fmt.Errorf("error response: %T", res))
 		}
+		/**/
 
 	case *services.GetVehProgSvcMsg:
 		fmt.Printf("get company services: %v\n", msg)

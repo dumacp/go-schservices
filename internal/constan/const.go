@@ -6,6 +6,7 @@ const (
 	SUBJECT_SVC_COMPNAY_SNAPSHOT = "FMS-SERVICE-SCHEDULES-COMPANY-SNAPSHOT"
 	SUBJECT_SVC_EXECUTED         = "FFMS-SERVICE-EXECUTED"
 	SUBJECT_SVC_COMPNAY_DRIVER   = "_FMS-DRIVER"
-	URL_SVC_COMMAND              = "/api/external-system-gateway/rest/data-transfer-objet"
+	URL_SVC_COMMAND              = "/api/external-system-gateway/rest/requestLiveExecutedService"
+	URL_SVC_SCHEDULING           = "/api/external-system-gateway/rest/service-scheduling/"
 	TOPIC_REPLY                  = "schservices/gwiot"
 )
