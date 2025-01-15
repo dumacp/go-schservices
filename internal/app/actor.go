@@ -261,7 +261,7 @@ func (a *Actor) Receive(ctx actor.Context) {
 						fmt.Println("Error al deserializar el JSON de 'resp':", err)
 						return
 					}
-					ctx.Respond(&services.TakeServiceResponseMsg{Error: respJSON})
+					ctx.Respond(&services.TakeServiceResponseMsg{Error: details.Msg})
 				} else {
 					ctx.Respond(&services.TakeServiceResponseMsg{Error: resResponse.Error})
 				}
@@ -371,25 +371,49 @@ func (a *Actor) Receive(ctx actor.Context) {
 						fmt.Println("Error al deserializar el JSON de 'resp':", err)
 						return
 					}
-					ctx.Respond(&services.TakeServiceResponseMsg{Error: respJSON})
+					ctx.Respond(&services.CompanyProgSvcMsg{Error: details.Msg})
 				} else {
-					ctx.Respond(&services.TakeServiceResponseMsg{Error: resResponse.Error})
+					ctx.Respond(&services.CompanyProgSvcMsg{Error: resResponse.Error})
 				}
 			} else if resResponse.Code == 200 {
-				ctx.Respond(&services.TakeServiceResponseMsg{
-					DataCode: int32(resResponse.Code),
-					DataMsg:  string(resResponse.Data),
-					Error:    "",
+				val := struct {
+					Values []*services.ScheduleService `json:"scheduledServices"`
+				}{
+					Values: make([]*services.ScheduleService, 0),
+				}
+				if err := json.Unmarshal(resResponse.Data, &val); err != nil {
+					fmt.Printf("error unmarshal: %s, data: %s\n", err, resResponse.GetData())
+					ctx.Respond(err)
+					break
+				}
+
+				funcVerify := func(svc *services.ScheduleService) bool {
+					switch {
+					case msg.GetRouteId() > 0 && len(msg.GetState()) > 0:
+						return svc.Itinenary.Id == msg.GetRouteId() && strings.EqualFold(svc.State, msg.State)
+					case msg.GetRouteId() > 0:
+						return svc.Itinenary.Id == msg.GetRouteId()
+					case len(msg.GetState()) > 0:
+						return strings.EqualFold(svc.State, msg.State)
+					}
+					return true
+				}
+				svcs := make([]*services.ScheduleService, 0)
+				for _, v := range val.Values {
+					if funcVerify(v) {
+						svcs = append(svcs, v)
+					}
+				}
+				ctx.Respond(&services.CompanyProgSvcMsg{
+					ScheduledServices: svcs,
 				})
 			} else {
-				ctx.Respond(&services.TakeServiceResponseMsg{
-					Error:    fmt.Sprintf("error response: %d, %s", resResponse.Code, resResponse.GetData()),
-					DataCode: int32(resResponse.Code),
-					DataMsg:  string(resResponse.Data),
+				ctx.Respond(&services.CompanyProgSvcMsg{
+					Error: string(resResponse.GetData()),
 				})
 			}
 		} else {
-			ctx.Respond(&services.TakeServiceResponseMsg{
+			ctx.Respond(&services.CompanyProgSvcMsg{
 				Error: fmt.Sprintf("error response: %T", res),
 			})
 		}
@@ -443,7 +467,7 @@ func (a *Actor) Receive(ctx actor.Context) {
 		/**/
 
 	case *services.GetVehProgSvcMsg:
-		fmt.Printf("get company services: %v\n", msg)
+		fmt.Printf("get company driver services: %v\n", msg)
 		if ctx.Sender() == nil {
 			break
 		}

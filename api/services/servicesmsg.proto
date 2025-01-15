@@ -52,6 +52,7 @@ message getCompanyProgSvcMsg {
 }
 message companyProgSvcMsg {
 	repeated scheduleService scheduledServices = 1;
+	string error = 2;
 }
 
 message getCompanyDriverMsg {
