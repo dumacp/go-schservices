@@ -150,19 +150,19 @@ func (a *Actor) Receive(ctx actor.Context) {
 			ctx.Watch(pid)
 			a.pidNats = pid
 
-			ctx.Send(ctx.Self(), &gwiotmsg.WatchKeyValue{
-				Bucket: constan.SUBJECT_SVC_SNAPSHOT,
-				Key:    a.id,
-			})
+			// ctx.Send(ctx.Self(), &gwiotmsg.WatchKeyValue{
+			// 	Bucket: constan.SUBJECT_SVC_SNAPSHOT,
+			// 	Key:    a.id,
+			// })
 
-			go func() {
-				time.Sleep(6 * time.Second)
-				ctx.Send(ctx.Self(), &gwiotmsg.WatchKeyValue{
-					Bucket:         constan.SUBJECT_SVC_MODS,
-					Key:            a.id,
-					IncludeHistory: true,
-				})
-			}()
+			// go func() {
+			// time.Sleep(6 * time.Second)
+			ctx.Send(ctx.Self(), &gwiotmsg.WatchKeyValue{
+				Bucket:         constan.SUBJECT_SVC_MODS,
+				Key:            a.id,
+				IncludeHistory: true,
+			})
+			// }()
 		} else if !a.connected {
 			ctx.Request(a.pidNats, &gwiotmsg.StatusConnRequest{})
 		}
