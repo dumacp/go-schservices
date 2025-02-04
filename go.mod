@@ -4,11 +4,11 @@ go 1.19
 
 replace github.com/nats-io/nats.go => ../../nats-io/nats.go
 
-//replace github.com/dumacp/go-gwiot => ../go-gwiot
+replace github.com/dumacp/go-gwiot => ../go-gwiot
 
 require (
 	github.com/coreos/go-oidc v2.2.1+incompatible
-	github.com/dumacp/go-gwiot v0.0.0-20250114164218-c258cd5ac401
+	github.com/dumacp/go-gwiot v0.0.0-20250115140529-82d0b659331a
 	github.com/dumacp/go-logs v0.0.1
 	github.com/eclipse/paho.mqtt.golang v1.4.2
 	github.com/google/uuid v1.3.0

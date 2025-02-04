@@ -10,10 +10,6 @@ github.com/coreos/go-oidc v2.2.1+incompatible h1:mh48q/BqXqgjVHpy2ZY7WnWAbenxRjs
 github.com/coreos/go-oidc v2.2.1+incompatible/go.mod h1:CgnwVTmzoESiwO9qyAFEMiHoZ1nMCKZlZ9V6mm3/LKc=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
-github.com/dumacp/go-gwiot v0.0.0-20241118181849-c27018076aaa h1:zBYRdwDWjX/DxFvtlyC8Z1ba74Qi8IdXQslPgWXIhzk=
-github.com/dumacp/go-gwiot v0.0.0-20241118181849-c27018076aaa/go.mod h1:V3Q7Xq2YJKHAGUBe9MRQOASQ1ZJrIeXl7bEmV8VDB44=
-github.com/dumacp/go-gwiot v0.0.0-20250114164218-c258cd5ac401 h1:1KCtbutI5+um3qSyjrkfX4fFsDocyfxYBRIA1dpOqvY=
-github.com/dumacp/go-gwiot v0.0.0-20250114164218-c258cd5ac401/go.mod h1:zak4GgHmuMz2AWgcTQf4wF/425bjmDsfd/bZXN+QRrc=
 github.com/dumacp/go-logs v0.0.1 h1:X6pBagK6lCgNyz+MluT1V3cvoHnJsZCSIz5pjYe9YBc=
 github.com/dumacp/go-logs v0.0.1/go.mod h1:nxB2d1DaPSLGnz+0zuR29N/YRq7THIVwQLDHf0jBSRc=
 github.com/eclipse/paho.mqtt.golang v1.4.2 h1:66wOzfUHSSI1zamx7jR6yMEI5EuHnT1G6rNA5PM12m4=

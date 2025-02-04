@@ -223,11 +223,9 @@ func (a *Actor) Receive(ctx actor.Context) {
 			CompanyId: msg.CompanyId,
 		}
 		uuid, _ := uuid.NewUUID()
-		takeSvc := &Command{
+		takeSvc := &CommandStartService{
 			DeviceId:   msg.DeviceId,
 			PlatformId: msg.PlatformId,
-			Type:       "COMMAND",
-			Subtype:    "RequestLiveExecutedService",
 			Payload:    payload,
 			MessageId:  uuid.String(),
 			Timestamp:  time.Now().UnixMilli(),
@@ -237,18 +235,18 @@ func (a *Actor) Receive(ctx actor.Context) {
 			Url:  fmt.Sprintf("%s%s", a.url, constan.URL_SVC_COMMAND),
 			Data: data,
 		}, 10*time.Second).Result(); err != nil {
-			fmt.Printf("error request 34: %s\n", err)
 			ctx.Respond(err)
 			break
 		} else if resResponse, ok := res.(*gwiotmsg.HttpPostResponse); ok {
-			fmt.Printf("error request: %s\n", resResponse)
+			fmt.Printf("post response: %s\n", resResponse)
+			fmt.Printf("post request: %s\n", data)
 
 			if len(resResponse.Error) > 0 {
 				// Encuentra y extrae el JSON anidado
-				start := strings.Index(resResponse.Error, "resp: {")
+				start := strings.Index(resResponse.Error, "{")
 				if start != -1 {
 					// Encuentra el contenido JSON de 'resp'
-					respJSON := resResponse.Error[start+6:] // +6 para omitir "resp: "
+					respJSON := resResponse.Error[start:] // +6 para omitir "resp: "
 					respJSON = strings.TrimSpace(respJSON)
 					type RespDetails struct {
 						Name string `json:"name"`
@@ -258,7 +256,7 @@ func (a *Actor) Receive(ctx actor.Context) {
 					var details RespDetails
 					err = json.Unmarshal([]byte(respJSON), &details)
 					if err != nil {
-						fmt.Println("Error al deserializar el JSON de 'resp':", err)
+						fmt.Printf("Error al deserializar el JSON de 'resp': %s, %s", err, resResponse.Error)
 						return
 					}
 					ctx.Respond(&services.TakeServiceResponseMsg{Error: details.Msg})
@@ -266,17 +264,17 @@ func (a *Actor) Receive(ctx actor.Context) {
 					ctx.Respond(&services.TakeServiceResponseMsg{Error: resResponse.Error})
 				}
 			} else if resResponse.Code == 200 {
-				resTake := new(CommandResponse)
-				if err := json.Unmarshal(resResponse.Data, resTake); err != nil {
-					ctx.Respond(&services.TakeServiceResponseMsg{
-						Error: fmt.Sprintf("error unmarshal: %s, data: %s", err, resResponse.GetData()),
-					})
-					break
-				}
+				// resTake := new(CommandResponse)
+				// if err := json.Unmarshal(resResponse.Data, resTake); err != nil {
+				// 	ctx.Respond(&services.TakeServiceResponseMsg{
+				// 		Error: fmt.Sprintf("error unmarshal: %s, data: %s", err, resResponse.GetData()),
+				// 	})
+				// 	break
+				// }
 				ctx.Respond(&services.TakeServiceResponseMsg{
-					DataCode: int32(resTake.Data.Code),
-					DataMsg:  resTake.Data.Message,
-					Error:    "",
+					// DataCode: int32(resTake.Data.Code),
+					// DataMsg:  resTake.Data.Message,
+					Error: "",
 				})
 			} else {
 				ctx.Respond(&services.TakeServiceResponseMsg{
@@ -351,7 +349,7 @@ func (a *Actor) Receive(ctx actor.Context) {
 			ctx.Respond(err)
 			break
 		} else if resResponse, ok := res.(*gwiotmsg.HttpGetResponse); ok {
-			fmt.Printf("error request: %s\n", resResponse)
+			fmt.Printf("get response: %s\n", resResponse)
 
 			if len(resResponse.Error) > 0 {
 				// Encuentra y extrae el JSON anidado
@@ -368,7 +366,7 @@ func (a *Actor) Receive(ctx actor.Context) {
 					var details RespDetails
 					err = json.Unmarshal([]byte(respJSON), &details)
 					if err != nil {
-						fmt.Println("Error al deserializar el JSON de 'resp':", err)
+						fmt.Printf("Error al deserializar el JSON de 'resp': %s, %s", err, resResponse.Error)
 						return
 					}
 					ctx.Respond(&services.CompanyProgSvcMsg{Error: details.Msg})
@@ -390,9 +388,9 @@ func (a *Actor) Receive(ctx actor.Context) {
 				funcVerify := func(svc *services.ScheduleService) bool {
 					switch {
 					case msg.GetRouteId() > 0 && len(msg.GetState()) > 0:
-						return svc.Itinenary.Id == msg.GetRouteId() && strings.EqualFold(svc.State, msg.State)
+						return svc.Itinerary.Id == msg.GetRouteId() && strings.EqualFold(svc.State, msg.State)
 					case msg.GetRouteId() > 0:
-						return svc.Itinenary.Id == msg.GetRouteId()
+						return svc.Itinerary.Id == msg.GetRouteId()
 					case len(msg.GetState()) > 0:
 						return strings.EqualFold(svc.State, msg.State)
 					}

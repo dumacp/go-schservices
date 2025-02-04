@@ -46,3 +46,16 @@ type StartServicePayload struct {
 	DriverId  string `json:"driverId"`
 	CompanyId string `json:"companyId"`
 }
+
+type CommandStartService struct {
+	DeviceId   string      `json:"deviceId"`
+	PlatformId string      `json:"platformId"`
+	Payload    interface{} `json:"payload"`
+	MessageId  string      `json:"messageId"`
+	Timestamp  int64       `json:"timestamp"`
+}
+
+func (svc *CommandStartService) Bytes() []byte {
+	jsonValue, _ := json.Marshal(svc)
+	return jsonValue
+}

@@ -179,12 +179,12 @@ func (a *Actor) Receive(ctx actor.Context) {
 			switch resi := res.(type) {
 			case *gwiotmsg.HttpPostResponse:
 				if len(resi.Error) > 0 {
-					start := strings.Index(resi.Error, "resp: {")
+					start := strings.Index(resi.Error, "{")
 					if start == -1 {
 						ctx.Respond(resi)
 					} else {
 						// Encuentra el contenido JSON de 'resp'
-						respJSON := resi.Error[start+6:] // +6 para omitir "resp: "
+						respJSON := resi.Error[start:] // +6 para omitir "resp: "
 						respJSON = strings.TrimSpace(respJSON)
 						type RespDetails struct {
 							Name string `json:"name"`
@@ -196,7 +196,60 @@ func (a *Actor) Receive(ctx actor.Context) {
 						if err != nil {
 							ctx.Respond(resi)
 						} else {
-							ctx.Respond(&services.TakeServiceResponseMsg{Error: details.Msg})
+							if len(details.Msg) > 0 {
+								ctx.Respond(&gwiotmsg.HttpPostResponse{Error: details.Msg})
+							} else {
+								ctx.Respond(&gwiotmsg.HttpPostResponse{Error: details.Name})
+							}
+
+						}
+					}
+				} else {
+					ctx.Respond(resi)
+					// ctx.Respond(&gwiotmsg.HttpPostResponse{
+					//	Error: "",
+					//	Code:  resi.GetCode(),
+					// })
+				}
+			default:
+				logs.LogWarn.Printf("error response http: %T", res)
+			}
+		} else {
+			ctx.Respond(&gwiotmsg.HttpPostResponse{
+				Error: "not connected",
+			})
+		}
+	case *gwiotmsg.HttpGetRequest:
+		if ctx.Sender() == nil {
+			break
+		}
+		if a.pidNats != nil {
+			res, err := ctx.RequestFuture(a.pidNats, msg, 10*time.Second).Result()
+			if err != nil {
+				logs.LogWarn.Printf("error request http: %s", err)
+				break
+			}
+			switch resi := res.(type) {
+			case *gwiotmsg.HttpGetResponse:
+				if len(resi.Error) > 0 {
+					start := strings.Index(resi.Error, "{")
+					if start == -1 {
+						ctx.Respond(resi)
+					} else {
+						// Encuentra el contenido JSON de 'resp'
+						respJSON := resi.Error[start:] // +6 para omitir "resp: "
+						respJSON = strings.TrimSpace(respJSON)
+						type RespDetails struct {
+							Name string `json:"name"`
+							Code int    `json:"code"`
+							Msg  string `json:"msg"`
+						}
+						var details RespDetails
+						err = json.Unmarshal([]byte(respJSON), &details)
+						if err != nil {
+							ctx.Respond(resi)
+						} else {
+							ctx.Respond(&gwiotmsg.HttpGetResponse{Error: details.Msg})
 						}
 					}
 				} else {
@@ -206,7 +259,7 @@ func (a *Actor) Receive(ctx actor.Context) {
 				logs.LogWarn.Printf("error response http: %T", res)
 			}
 		} else {
-			ctx.Respond(&gwiotmsg.HttpPostResponse{
+			ctx.Respond(&gwiotmsg.HttpGetResponse{
 				Error: "not connected",
 			})
 		}
