@@ -101,3 +101,28 @@ message executedService {
     driver driver = 7;
 	vehicle vehicle = 8;
 }
+
+// {
+// 	"serviceAmount": 4,
+// 	"serviceSchedulingID": "cef701ea-e23d-41fc-9db0-10f130b38840",
+// 	"version": "2025-02-18_10-25-40",
+// 	"shift": 101101,
+// 	"itinerary": {
+// 		"id": 433,
+// 		"name": "JOE ARROYO  PORTAL SOLEDAD RVAC"
+// 	},
+// 	"route": {
+// 		"id": 163,
+// 		"name": "JOE ARROYO - PORTAL SOLEDAD RVAC",
+// 		"code": "S-1"
+// 	}
+// }
+
+message shiftService {
+	string serviceSchedulingID = 1;
+	string version = 2;
+	int32 shift = 3;
+	itinerary itinerary = 4;
+	route route = 5;
+	int32 serviceAmount = 6;
+}
