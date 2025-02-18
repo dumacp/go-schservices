@@ -55,6 +55,17 @@ message companyProgSvcMsg {
 	string error = 2;
 }
 
+message getCompanyProgShiftsMsg {
+	string companyId = 1;
+	int32 shiftId = 2;
+	string state = 3;
+	string deviceId = 4;
+}
+message companyProgShiftsMsg {
+	repeated scheduleService scheduledServices = 1;
+	string error = 2;
+}
+
 message getCompanyDriverMsg {
 	string companyId = 1;
 	string driverDoc = 2;
@@ -74,6 +85,22 @@ message takeServiceMsg {
 }
 
 message takeServiceResponseMsg {
+	string id = 1;
+	int32 dataCode = 2;
+	string dataMsg = 3;
+	string error = 5;
+}
+
+message retakeServiceMsg {
+	string deviceId = 1;
+	string platformId = 2;
+	string driverId = 3;
+	string companyId = 4;
+	string serviceId = 5;
+	string messageId = 6;
+}
+
+message retakeServiceResponseMsg {
 	string id = 1;
 	int32 dataCode = 2;
 	string dataMsg = 3;

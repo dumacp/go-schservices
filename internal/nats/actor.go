@@ -276,6 +276,8 @@ func (a *Actor) Receive(ctx actor.Context) {
 			switch resi := res.(type) {
 			case *gwiotmsg.KeysBucket:
 				ctx.Respond(resi)
+			case *gwiotmsg.Error:
+				ctx.Respond(resi)
 			default:
 				logs.LogWarn.Printf("error response keys: %T", res)
 			}
@@ -292,6 +294,8 @@ func (a *Actor) Receive(ctx actor.Context) {
 			}
 			switch resi := res.(type) {
 			case *gwiotmsg.KvEntryMessage:
+				ctx.Respond(resi)
+			case *gwiotmsg.Error:
 				ctx.Respond(resi)
 			default:
 				logs.LogWarn.Printf("error response key: %T", res)

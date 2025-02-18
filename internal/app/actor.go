@@ -331,6 +331,89 @@ func (a *Actor) Receive(ctx actor.Context) {
 				Services: result,
 			})
 		}
+	case *services.GetCompanyProgShiftsMsg:
+		fmt.Printf("get company Shifts: %v\n", msg)
+		if ctx.Sender() == nil {
+			break
+		}
+		if a.pidData == nil {
+			ctx.Respond(fmt.Errorf("error: data actor not found"))
+			break
+		}
+
+		if res, err := ctx.RequestFuture(a.pidData, &gwiotmsg.HttpGetRequest{
+			Url: fmt.Sprintf("%s%s%s", a.url, constan.URL_SVC_SCHEDULING, msg.GetDeviceId()),
+		}, 10*time.Second).Result(); err != nil {
+			fmt.Printf("error request 34: %s\n", err)
+			ctx.Respond(err)
+			break
+		} else if resResponse, ok := res.(*gwiotmsg.HttpGetResponse); ok {
+			fmt.Printf("get response: %s\n", resResponse)
+
+			if len(resResponse.Error) > 0 {
+				// Encuentra y extrae el JSON anidado
+				start := strings.Index(resResponse.Error, "resp: {")
+				if start != -1 {
+					// Encuentra el contenido JSON de 'resp'
+					respJSON := resResponse.Error[start+6:] // +6 para omitir "resp: "
+					respJSON = strings.TrimSpace(respJSON)
+					type RespDetails struct {
+						Name string `json:"name"`
+						Code int    `json:"code"`
+						Msg  string `json:"msg"`
+					}
+					var details RespDetails
+					err = json.Unmarshal([]byte(respJSON), &details)
+					if err != nil {
+						fmt.Printf("Error al deserializar el JSON de 'resp': %s, %s", err, resResponse.Error)
+						return
+					}
+					ctx.Respond(&services.CompanyProgSvcMsg{Error: details.Msg})
+				} else {
+					ctx.Respond(&services.CompanyProgSvcMsg{Error: resResponse.Error})
+				}
+			} else if resResponse.Code == 200 {
+				val := struct {
+					Values []*services.ScheduleService `json:"scheduledServices"`
+				}{
+					Values: make([]*services.ScheduleService, 0),
+				}
+				if err := json.Unmarshal(resResponse.Data, &val); err != nil {
+					fmt.Printf("error unmarshal: %s, data: %s\n", err, resResponse.GetData())
+					ctx.Respond(err)
+					break
+				}
+
+				funcVerify := func(svc *services.ScheduleService) bool {
+					switch {
+					case msg.GetShiftId() > 0 && len(msg.GetState()) > 0:
+						return svc.Itinerary.Id == msg.GetShiftId() && strings.EqualFold(svc.State, msg.State)
+					case msg.GetShiftId() > 0:
+						return svc.Itinerary.Id == msg.GetShiftId()
+					case len(msg.GetState()) > 0:
+						return strings.EqualFold(svc.State, msg.State)
+					}
+					return true
+				}
+				svcs := make([]*services.ScheduleService, 0)
+				for _, v := range val.Values {
+					if funcVerify(v) {
+						svcs = append(svcs, v)
+					}
+				}
+				ctx.Respond(&services.CompanyProgSvcMsg{
+					ScheduledServices: svcs,
+				})
+			} else {
+				ctx.Respond(&services.CompanyProgSvcMsg{
+					Error: string(resResponse.GetData()),
+				})
+			}
+		} else {
+			ctx.Respond(&services.CompanyProgSvcMsg{
+				Error: fmt.Sprintf("error response: %T", res),
+			})
+		}
 
 	case *services.GetCompanyProgSvcMsg:
 		fmt.Printf("get company services: %v\n", msg)
