@@ -57,12 +57,12 @@ message companyProgSvcMsg {
 
 message getCompanyProgShiftsMsg {
 	string companyId = 1;
-	int32 shiftId = 2;
+	string shiftId = 2;
 	string state = 3;
 	string deviceId = 4;
 }
 message companyProgShiftsMsg {
-	repeated scheduleService scheduledServices = 1;
+	repeated shiftService shiftsServices = 1;
 	string error = 2;
 }
 
@@ -101,6 +101,23 @@ message retakeServiceMsg {
 }
 
 message retakeServiceResponseMsg {
+	string id = 1;
+	int32 dataCode = 2;
+	string dataMsg = 3;
+	string error = 5;
+}
+
+message takeShiftMsg {
+	string deviceId = 1;
+	string platformId = 2;
+	string driverId = 3;
+	string serviceSchedulingId = 4;
+	string shiftId = 5;
+	string messageId = 6;
+	int64 timestamp = 7;
+}
+
+message takeShiftResponseMsg {
 	string id = 1;
 	int32 dataCode = 2;
 	string dataMsg = 3;

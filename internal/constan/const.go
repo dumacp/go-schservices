@@ -8,5 +8,6 @@ const (
 	SUBJECT_SVC_COMPNAY_DRIVER   = "_FMS-DRIVER"
 	URL_SVC_COMMAND              = "/api/external-system-gateway/rest/requestLiveExecutedService"
 	URL_SVC_SCHEDULING           = "/api/external-system-gateway/rest/service-scheduling/"
+	URL_SVC_SHIFTS               = "/api/external-system-gateway/rest/service-shitf/"
 	TOPIC_REPLY                  = "schservices/gwiot"
 )

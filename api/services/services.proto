@@ -121,8 +121,9 @@ message executedService {
 message shiftService {
 	string serviceSchedulingID = 1;
 	string version = 2;
-	int32 shift = 3;
+	string shift = 3;
 	itinerary itinerary = 4;
 	route route = 5;
 	int32 serviceAmount = 6;
+	int64 nextServiceTimeStamp = 7;
 }

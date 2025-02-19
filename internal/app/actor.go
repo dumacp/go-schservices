@@ -342,20 +342,25 @@ func (a *Actor) Receive(ctx actor.Context) {
 		}
 
 		if res, err := ctx.RequestFuture(a.pidData, &gwiotmsg.HttpGetRequest{
-			Url: fmt.Sprintf("%s%s%s", a.url, constan.URL_SVC_SCHEDULING, msg.GetDeviceId()),
+			Url: func() string {
+				if len(msg.ShiftId) > 0 {
+					return fmt.Sprintf("%s%s%s?shift=%s", a.url, constan.URL_SVC_SHIFTS, msg.GetDeviceId(), msg.ShiftId)
+				}
+				return fmt.Sprintf("%s%s%s", a.url, constan.URL_SVC_SHIFTS, msg.GetDeviceId())
+			}(),
 		}, 10*time.Second).Result(); err != nil {
-			fmt.Printf("error request 34: %s\n", err)
+			fmt.Printf("error shifts request: %s\n", err)
 			ctx.Respond(err)
 			break
 		} else if resResponse, ok := res.(*gwiotmsg.HttpGetResponse); ok {
-			fmt.Printf("get response: %s\n", resResponse)
+			fmt.Printf("get shift response: %s\n", resResponse)
 
 			if len(resResponse.Error) > 0 {
 				// Encuentra y extrae el JSON anidado
 				start := strings.Index(resResponse.Error, "resp: {")
 				if start != -1 {
 					// Encuentra el contenido JSON de 'resp'
-					respJSON := resResponse.Error[start+6:] // +6 para omitir "resp: "
+					respJSON := resResponse.Error[start:] // +6 para omitir "resp: "
 					respJSON = strings.TrimSpace(respJSON)
 					type RespDetails struct {
 						Name string `json:"name"`
@@ -373,45 +378,25 @@ func (a *Actor) Receive(ctx actor.Context) {
 					ctx.Respond(&services.CompanyProgSvcMsg{Error: resResponse.Error})
 				}
 			} else if resResponse.Code == 200 {
-				val := struct {
-					Values []*services.ScheduleService `json:"scheduledServices"`
-				}{
-					Values: make([]*services.ScheduleService, 0),
-				}
-				if err := json.Unmarshal(resResponse.Data, &val); err != nil {
-					fmt.Printf("error unmarshal: %s, data: %s\n", err, resResponse.GetData())
+
+				svcs := make([]*services.ShiftService, 0)
+				if err := json.Unmarshal(resResponse.Data, &svcs); err != nil {
+					fmt.Printf("error shifs unmarshal: %s, data: %s\n", err, resResponse.GetData())
 					ctx.Respond(err)
 					break
 				}
 
-				funcVerify := func(svc *services.ScheduleService) bool {
-					switch {
-					case msg.GetShiftId() > 0 && len(msg.GetState()) > 0:
-						return svc.Itinerary.Id == msg.GetShiftId() && strings.EqualFold(svc.State, msg.State)
-					case msg.GetShiftId() > 0:
-						return svc.Itinerary.Id == msg.GetShiftId()
-					case len(msg.GetState()) > 0:
-						return strings.EqualFold(svc.State, msg.State)
-					}
-					return true
-				}
-				svcs := make([]*services.ScheduleService, 0)
-				for _, v := range val.Values {
-					if funcVerify(v) {
-						svcs = append(svcs, v)
-					}
-				}
-				ctx.Respond(&services.CompanyProgSvcMsg{
-					ScheduledServices: svcs,
+				ctx.Respond(&services.CompanyProgShiftsMsg{
+					ShiftsServices: svcs,
 				})
 			} else {
-				ctx.Respond(&services.CompanyProgSvcMsg{
+				ctx.Respond(&services.CompanyProgShiftsMsg{
 					Error: string(resResponse.GetData()),
 				})
 			}
 		} else {
 			ctx.Respond(&services.CompanyProgSvcMsg{
-				Error: fmt.Sprintf("error response: %T", res),
+				Error: fmt.Sprintf("error shitfs response: %T", res),
 			})
 		}
 
@@ -439,7 +424,7 @@ func (a *Actor) Receive(ctx actor.Context) {
 				start := strings.Index(resResponse.Error, "resp: {")
 				if start != -1 {
 					// Encuentra el contenido JSON de 'resp'
-					respJSON := resResponse.Error[start+6:] // +6 para omitir "resp: "
+					respJSON := resResponse.Error[start:] // +6 para omitir "resp: "
 					respJSON = strings.TrimSpace(respJSON)
 					type RespDetails struct {
 						Name string `json:"name"`
