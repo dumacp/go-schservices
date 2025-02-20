@@ -41,6 +41,12 @@ type TakeServicePayload struct {
 	CompanyId string `json:"companyId"`
 }
 
+type TakeShiftPayload struct {
+	ServiceSchedulingId string `json:"serviceSchedulingId"`
+	DriverId            string `json:"driverId"`
+	ShiftId             string `json:"shift"`
+}
+
 type StartServicePayload struct {
 	ServiceId string `json:"serviceId"`
 	DriverId  string `json:"driverId"`
