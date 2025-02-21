@@ -140,6 +140,22 @@ message startServiceResponseMsg {
 	string error = 5;
 }
 
+message releaseShiftMsg {
+	string deviceId = 1;
+	string platformId = 2;
+	string serviceSchedulingId = 4;
+	string shiftId = 5;
+	string messageId = 6;
+	int64 timestamp = 7;
+}
+
+message releaseShiftResponseMsg {
+	string id = 1;
+	int32 dataCode = 2;
+	string dataMsg = 3;
+	string error = 5;
+}
+
 message executedServiceMsg {	
 	repeated executedService services = 1;
 }

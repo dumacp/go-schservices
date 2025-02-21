@@ -11,5 +11,6 @@ const (
 	URL_SVC_SCHEDULING           = "/api/external-system-gateway/rest/service-scheduling/"
 	URL_SVC_SHIFTS               = "/api/external-system-gateway/rest/service-shitf/"
 	URL_SVC_TAKE_SHIFT           = "/api/external-system-gateway/rest/requestServiceSchedulingShift"
+	URL_SVC_RELEASE_SHIFT        = "/api/external-system-gateway/rest/releaseServiceSchedulingShift"
 	TOPIC_REPLY                  = "schservices/gwiot"
 )

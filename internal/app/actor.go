@@ -208,7 +208,7 @@ func (a *Actor) Receive(ctx actor.Context) {
 			})
 		}
 	case *services.TakeShiftMsg:
-		fmt.Printf("take service: %v\n", msg)
+		fmt.Printf("take shift: %v\n", msg)
 		if ctx.Sender() == nil {
 			break
 		}
@@ -285,6 +285,85 @@ func (a *Actor) Receive(ctx actor.Context) {
 				Error: fmt.Sprintf("error response: %T", res),
 			})
 		}
+	case *services.ReleaseShiftMsg:
+		fmt.Printf("release shift: %v\n", msg)
+		if ctx.Sender() == nil {
+			break
+		}
+		if a.pidData == nil {
+			ctx.Respond(fmt.Errorf("error: data actor not found"))
+			break
+		}
+		// payload := &ReleaseShiftPayload{
+		// 	ServiceSchedulingId: msg.ServiceSchedulingId,
+		// 	ShiftId:             msg.ShiftId,
+		// }
+		payload := &ReleaseShiftPayload{}
+		uuid, _ := uuid.NewUUID()
+		takeSvc := &CommandStartService{
+			DeviceId:   msg.DeviceId,
+			PlatformId: msg.PlatformId,
+			Payload:    payload,
+			MessageId:  uuid.String(),
+			Timestamp:  time.Now().UnixMilli(),
+		}
+		data := takeSvc.Bytes()
+		if res, err := ctx.RequestFuture(a.pidData, &gwiotmsg.HttpPostRequest{
+			Url:  fmt.Sprintf("%s%s", a.url, constan.URL_SVC_RELEASE_SHIFT),
+			Data: data,
+		}, 10*time.Second).Result(); err != nil {
+			ctx.Respond(err)
+			break
+		} else if resResponse, ok := res.(*gwiotmsg.HttpPostResponse); ok {
+			fmt.Printf("post response: %s\n", resResponse)
+			fmt.Printf("post request: %s\n", data)
+
+			if len(resResponse.Error) > 0 {
+				// Encuentra y extrae el JSON anidado
+				start := strings.Index(resResponse.Error, "{")
+				if start != -1 {
+					// Encuentra el contenido JSON de 'resp'
+					respJSON := resResponse.Error[start:] // +6 para omitir "resp: "
+					respJSON = strings.TrimSpace(respJSON)
+					type RespDetails struct {
+						Name string `json:"name"`
+						Code int    `json:"code"`
+						Msg  string `json:"msg"`
+					}
+					var details RespDetails
+					err = json.Unmarshal([]byte(respJSON), &details)
+					if err != nil {
+						fmt.Printf("Error al deserializar el JSON de 'resp': %s, %s", err, resResponse.Error)
+						return
+					}
+					ctx.Respond(&services.ReleaseShiftResponseMsg{Error: details.Msg})
+				} else {
+					ctx.Respond(&services.ReleaseShiftResponseMsg{Error: resResponse.Error})
+				}
+			} else if resResponse.Code == 200 {
+				// resTake := new(CommandResponse)
+				// if err := json.Unmarshal(resResponse.Data, resTake); err != nil {
+				// 	ctx.Respond(&services.TakeServiceResponseMsg{
+				// 		Error: fmt.Sprintf("error unmarshal: %s, data: %s", err, resResponse.GetData()),
+				// 	})
+				// 	break
+				// }
+				ctx.Respond(&services.ReleaseShiftResponseMsg{
+					// DataCode: int32(resTake.Data.Code),
+					// DataMsg:  resTake.Data.Message,
+					Error: "",
+				})
+			} else {
+				ctx.Respond(&services.ReleaseShiftResponseMsg{
+					Error: fmt.Sprintf("error response: %d, %s", resResponse.Code, resResponse.GetData()),
+				})
+			}
+		} else {
+			ctx.Respond(&services.TakeShiftResponseMsg{
+				Error: fmt.Sprintf("error response: %T", res),
+			})
+		}
+
 	case *services.TakeServiceMsg:
 		fmt.Printf("take service: %v\n", msg)
 		if ctx.Sender() == nil {
