@@ -11,6 +11,7 @@ enum state {
 	READY_TO_START = 4;
 	WAITING_TO_ARRIVE_TO_STARTING_POINT = 5;
 	SCHEDULED = 6;
+	UNKNOWN = 11;
 }
 
 enum timingState {
