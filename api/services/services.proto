@@ -65,6 +65,7 @@ message checkpointTimingState {
 	string name = 2;
 	string state = 3;
 	int64 timeDiff = 4;
+	string nextCheckPointName = 5;
 }
 
 message snapshot {
