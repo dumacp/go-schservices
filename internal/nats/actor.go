@@ -268,7 +268,7 @@ func (a *Actor) Receive(ctx actor.Context) {
 			break
 		}
 		if a.pidNats != nil {
-			res, err := ctx.RequestFuture(a.pidNats, msg, time.Second).Result()
+			res, err := ctx.RequestFuture(a.pidNats, msg, 3*time.Second).Result()
 			if err != nil {
 				logs.LogWarn.Printf("error request keys: %s", err)
 				break

@@ -843,6 +843,67 @@ func (a *Actor) Receive(ctx actor.Context) {
 			})
 		}
 
+	case *services.GetServiceSummaryMsg:
+		fmt.Printf("get service summary: %v\n", msg)
+		if ctx.Sender() == nil {
+			break
+		}
+		if a.pidData == nil {
+			ctx.Respond(fmt.Errorf("error: data actor not found"))
+			break
+		}
+		if res, err := ctx.RequestFuture(a.pidData, &gwiotmsg.HttpGetRequest{
+			Url: fmt.Sprintf("%s%s%s", a.url, constan.URL_SVC_SUMMARY, msg.GetServiceId()),
+		}, 10*time.Second).Result(); err != nil {
+			fmt.Printf("error request service-summary: %s\n", err)
+			ctx.Respond(err)
+			break
+		} else if resResponse, ok := res.(*gwiotmsg.HttpGetResponse); ok {
+			fmt.Printf("get service-summary response: %s\n", resResponse)
+
+			if len(resResponse.Error) > 0 {
+				// Encuentra y extrae el JSON anidado
+				start := strings.Index(resResponse.Error, "resp: {")
+				if start != -1 {
+					// Encuentra el contenido JSON de 'resp'
+					respJSON := resResponse.Error[start:] // +6 para omitir "resp: "
+					respJSON = strings.TrimSpace(respJSON)
+					type RespDetails struct {
+						Name string `json:"name"`
+						Code int    `json:"code"`
+						Msg  string `json:"msg"`
+					}
+					var details RespDetails
+					err = json.Unmarshal([]byte(respJSON), &details)
+					if err != nil {
+						fmt.Printf("Error al deserializar el JSON de 'resp': %s, %s", err, resResponse.Error)
+						return
+					}
+					ctx.Respond(&services.ServiceSummaryMsg{Error: details.Msg})
+				} else {
+					ctx.Respond(&services.ServiceSummaryMsg{Error: resResponse.Error})
+				}
+			} else if resResponse.Code == 200 {
+				val := new(services.ServiceSummary)
+				if err := json.Unmarshal(resResponse.Data, val); err != nil {
+					fmt.Printf("error unmarshal: %s, data: %s\n", err, resResponse.GetData())
+					ctx.Respond(err)
+					break
+				}
+				ctx.Respond(&services.ServiceSummaryMsg{
+					Summary: val,
+				})
+			} else {
+				ctx.Respond(&services.ServiceSummaryMsg{
+					Error: string(resResponse.GetData()),
+				})
+			}
+		} else {
+			ctx.Respond(&services.ServiceSummaryMsg{
+				Error: fmt.Sprintf("error response: %T", res),
+			})
+		}
+
 	}
 }
 

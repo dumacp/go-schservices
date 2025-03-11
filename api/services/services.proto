@@ -129,3 +129,51 @@ message shiftService {
 	int32 serviceAmount = 6;
 	int64 nextServiceTimeStamp = 7;
 }
+
+// {
+//   "_id": "8bc28f95-03b6-4ac3-bfdd-4ce0741af4e0-2502",
+//   "companyId": "d3c4a48e-ae8c-4307-ad7d-54543204282c",
+//   "itinerary": {
+//     "itineraryPmc": 350,
+//     "itineraryName": "SANTO DOMINGO",
+//     "routeCode": "060B",
+//     "routePmc": 117
+//   },
+//   "vehicle": {
+//     "number": "329",
+//     "plate": "TSZ731",
+//     "checkpoint": "Inicio de ruta",
+//     "timingState": "DELAYED",
+//     "timeDiff": -112
+//   },
+//   "nextVehicle": {
+//     "number": "306",
+//     "plate": "TTM696",
+//     "checkpoint": "Terminal Santodomingo",
+//     "timingState": "DELAYED",
+//     "timeDiff": -7
+//   },
+//   "prevVehicle": {}
+// }
+message vehicleInService {
+	string number = 1;
+	string plate = 2;
+	string checkpoint = 3;
+	string timingState = 4;
+	int32 timeDiff = 5;
+}
+message itineraryInService {
+	int32 itineraryPmc = 1;
+	string itineraryName = 2;
+	string routeCode = 3;
+	int32 routePmc = 4;
+}
+message serviceSummary {
+	string _id = 1;
+	string companyId = 2;
+	itineraryInService itinerary = 3;
+	vehicleInService vehicle = 4;
+	vehicleInService nextVehicle = 5;
+	vehicleInService prevVehicle = 6;
+}
+

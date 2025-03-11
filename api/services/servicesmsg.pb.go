@@ -1932,6 +1932,108 @@ func (x *VehProgSvcMsg) GetScheduledServices() []*ScheduleService {
 	return nil
 }
 
+type GetServiceSummaryMsg struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	ServiceId string `protobuf:"bytes,1,opt,name=serviceId,proto3" json:"serviceId,omitempty"`
+}
+
+func (x *GetServiceSummaryMsg) Reset() {
+	*x = GetServiceSummaryMsg{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_servicesmsg_proto_msgTypes[31]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *GetServiceSummaryMsg) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetServiceSummaryMsg) ProtoMessage() {}
+
+func (x *GetServiceSummaryMsg) ProtoReflect() protoreflect.Message {
+	mi := &file_servicesmsg_proto_msgTypes[31]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetServiceSummaryMsg.ProtoReflect.Descriptor instead.
+func (*GetServiceSummaryMsg) Descriptor() ([]byte, []int) {
+	return file_servicesmsg_proto_rawDescGZIP(), []int{31}
+}
+
+func (x *GetServiceSummaryMsg) GetServiceId() string {
+	if x != nil {
+		return x.ServiceId
+	}
+	return ""
+}
+
+type ServiceSummaryMsg struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Summary *ServiceSummary `protobuf:"bytes,1,opt,name=summary,proto3" json:"summary,omitempty"`
+	Error   string          `protobuf:"bytes,2,opt,name=error,proto3" json:"error,omitempty"`
+}
+
+func (x *ServiceSummaryMsg) Reset() {
+	*x = ServiceSummaryMsg{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_servicesmsg_proto_msgTypes[32]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ServiceSummaryMsg) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ServiceSummaryMsg) ProtoMessage() {}
+
+func (x *ServiceSummaryMsg) ProtoReflect() protoreflect.Message {
+	mi := &file_servicesmsg_proto_msgTypes[32]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ServiceSummaryMsg.ProtoReflect.Descriptor instead.
+func (*ServiceSummaryMsg) Descriptor() ([]byte, []int) {
+	return file_servicesmsg_proto_rawDescGZIP(), []int{32}
+}
+
+func (x *ServiceSummaryMsg) GetSummary() *ServiceSummary {
+	if x != nil {
+		return x.Summary
+	}
+	return nil
+}
+
+func (x *ServiceSummaryMsg) GetError() string {
+	if x != nil {
+		return x.Error
+	}
+	return ""
+}
+
 var File_servicesmsg_proto protoreflect.FileDescriptor
 
 var file_servicesmsg_proto_rawDesc = []byte{
@@ -2144,10 +2246,20 @@ var file_servicesmsg_proto_rawDesc = []byte{
 	0x63, 0x65, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x19, 0x2e, 0x6d, 0x65, 0x73, 0x73,
 	0x61, 0x67, 0x65, 0x73, 0x2e, 0x73, 0x63, 0x68, 0x65, 0x64, 0x75, 0x6c, 0x65, 0x53, 0x65, 0x72,
 	0x76, 0x69, 0x63, 0x65, 0x52, 0x11, 0x73, 0x63, 0x68, 0x65, 0x64, 0x75, 0x6c, 0x65, 0x64, 0x53,
-	0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x73, 0x42, 0x2f, 0x5a, 0x2d, 0x67, 0x69, 0x74, 0x68, 0x75,
-	0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x64, 0x75, 0x6d, 0x61, 0x63, 0x70, 0x2f, 0x67, 0x6f, 0x2d,
-	0x73, 0x63, 0x68, 0x73, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x73, 0x2f, 0x61, 0x70, 0x69, 0x2f,
-	0x73, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x73, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x73, 0x22, 0x34, 0x0a, 0x14, 0x67, 0x65, 0x74, 0x53, 0x65,
+	0x72, 0x76, 0x69, 0x63, 0x65, 0x53, 0x75, 0x6d, 0x6d, 0x61, 0x72, 0x79, 0x4d, 0x73, 0x67, 0x12,
+	0x1c, 0x0a, 0x09, 0x73, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x49, 0x64, 0x18, 0x01, 0x20, 0x01,
+	0x28, 0x09, 0x52, 0x09, 0x73, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x49, 0x64, 0x22, 0x5d, 0x0a,
+	0x11, 0x73, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x53, 0x75, 0x6d, 0x6d, 0x61, 0x72, 0x79, 0x4d,
+	0x73, 0x67, 0x12, 0x32, 0x0a, 0x07, 0x73, 0x75, 0x6d, 0x6d, 0x61, 0x72, 0x79, 0x18, 0x01, 0x20,
+	0x01, 0x28, 0x0b, 0x32, 0x18, 0x2e, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x73,
+	0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x53, 0x75, 0x6d, 0x6d, 0x61, 0x72, 0x79, 0x52, 0x07, 0x73,
+	0x75, 0x6d, 0x6d, 0x61, 0x72, 0x79, 0x12, 0x14, 0x0a, 0x05, 0x65, 0x72, 0x72, 0x6f, 0x72, 0x18,
+	0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x65, 0x72, 0x72, 0x6f, 0x72, 0x42, 0x2f, 0x5a, 0x2d,
+	0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x64, 0x75, 0x6d, 0x61, 0x63,
+	0x70, 0x2f, 0x67, 0x6f, 0x2d, 0x73, 0x63, 0x68, 0x73, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x73,
+	0x2f, 0x61, 0x70, 0x69, 0x2f, 0x73, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x73, 0x62, 0x06, 0x70,
+	0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -2162,7 +2274,7 @@ func file_servicesmsg_proto_rawDescGZIP() []byte {
 	return file_servicesmsg_proto_rawDescData
 }
 
-var file_servicesmsg_proto_msgTypes = make([]protoimpl.MessageInfo, 31)
+var file_servicesmsg_proto_msgTypes = make([]protoimpl.MessageInfo, 33)
 var file_servicesmsg_proto_goTypes = []interface{}{
 	(*DiscoverSch)(nil),              // 0: messages.DiscoverSch
 	(*DiscoverResponseSch)(nil),      // 1: messages.DiscoverResponseSch
@@ -2195,26 +2307,30 @@ var file_servicesmsg_proto_goTypes = []interface{}{
 	(*SubscribeVehProgSvcMsg)(nil),   // 28: messages.subscribeVehProgSvcMsg
 	(*GetVehProgSvcMsg)(nil),         // 29: messages.getVehProgSvcMsg
 	(*VehProgSvcMsg)(nil),            // 30: messages.vehProgSvcMsg
-	(*ScheduleService)(nil),          // 31: messages.scheduleService
-	(*ShiftService)(nil),             // 32: messages.shiftService
-	(*Driver)(nil),                   // 33: messages.driver
-	(*ExecutedService)(nil),          // 34: messages.executedService
+	(*GetServiceSummaryMsg)(nil),     // 31: messages.getServiceSummaryMsg
+	(*ServiceSummaryMsg)(nil),        // 32: messages.serviceSummaryMsg
+	(*ScheduleService)(nil),          // 33: messages.scheduleService
+	(*ShiftService)(nil),             // 34: messages.shiftService
+	(*Driver)(nil),                   // 35: messages.driver
+	(*ExecutedService)(nil),          // 36: messages.executedService
+	(*ServiceSummary)(nil),           // 37: messages.serviceSummary
 }
 var file_servicesmsg_proto_depIdxs = []int32{
-	31, // 0: messages.updateServiceMsg.update:type_name -> messages.scheduleService
-	31, // 1: messages.removeServiceMsg.update:type_name -> messages.scheduleService
-	31, // 2: messages.serviceMsg.update:type_name -> messages.scheduleService
-	31, // 3: messages.serviceAllMsg.updates:type_name -> messages.scheduleService
-	31, // 4: messages.companyProgSvcMsg.scheduledServices:type_name -> messages.scheduleService
-	32, // 5: messages.companyProgShiftsMsg.shiftsServices:type_name -> messages.shiftService
-	33, // 6: messages.companyDriverMsg.driver:type_name -> messages.driver
-	34, // 7: messages.executedServiceMsg.services:type_name -> messages.executedService
-	31, // 8: messages.vehProgSvcMsg.scheduledServices:type_name -> messages.scheduleService
-	9,  // [9:9] is the sub-list for method output_type
-	9,  // [9:9] is the sub-list for method input_type
-	9,  // [9:9] is the sub-list for extension type_name
-	9,  // [9:9] is the sub-list for extension extendee
-	0,  // [0:9] is the sub-list for field type_name
+	33, // 0: messages.updateServiceMsg.update:type_name -> messages.scheduleService
+	33, // 1: messages.removeServiceMsg.update:type_name -> messages.scheduleService
+	33, // 2: messages.serviceMsg.update:type_name -> messages.scheduleService
+	33, // 3: messages.serviceAllMsg.updates:type_name -> messages.scheduleService
+	33, // 4: messages.companyProgSvcMsg.scheduledServices:type_name -> messages.scheduleService
+	34, // 5: messages.companyProgShiftsMsg.shiftsServices:type_name -> messages.shiftService
+	35, // 6: messages.companyDriverMsg.driver:type_name -> messages.driver
+	36, // 7: messages.executedServiceMsg.services:type_name -> messages.executedService
+	33, // 8: messages.vehProgSvcMsg.scheduledServices:type_name -> messages.scheduleService
+	37, // 9: messages.serviceSummaryMsg.summary:type_name -> messages.serviceSummary
+	10, // [10:10] is the sub-list for method output_type
+	10, // [10:10] is the sub-list for method input_type
+	10, // [10:10] is the sub-list for extension type_name
+	10, // [10:10] is the sub-list for extension extendee
+	0,  // [0:10] is the sub-list for field type_name
 }
 
 func init() { file_servicesmsg_proto_init() }
@@ -2596,6 +2712,30 @@ func file_servicesmsg_proto_init() {
 				return nil
 			}
 		}
+		file_servicesmsg_proto_msgTypes[31].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*GetServiceSummaryMsg); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_servicesmsg_proto_msgTypes[32].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ServiceSummaryMsg); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -2603,7 +2743,7 @@ func file_servicesmsg_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_servicesmsg_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   31,
+			NumMessages:   33,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

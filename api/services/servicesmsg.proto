@@ -177,3 +177,12 @@ message getVehProgSvcMsg {
 message vehProgSvcMsg {
 	repeated scheduleService scheduledServices = 1;
 }
+
+message getServiceSummaryMsg {
+	string serviceId = 1;
+}
+
+message serviceSummaryMsg {
+	serviceSummary summary = 1;
+	string error = 2;
+}
