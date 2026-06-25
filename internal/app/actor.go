@@ -859,7 +859,7 @@ func (a *Actor) Receive(ctx actor.Context) {
 			ctx.Respond(err)
 			break
 		} else if resResponse, ok := res.(*gwiotmsg.HttpGetResponse); ok {
-			fmt.Printf("get service-summary response: %s\n", resResponse)
+			fmt.Printf("get service-summary response: %v\n", resResponse)
 
 			if len(resResponse.Error) > 0 {
 				// Encuentra y extrae el JSON anidado

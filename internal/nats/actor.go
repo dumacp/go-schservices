@@ -20,7 +20,7 @@ import (
 )
 
 const (
-	TIMEOUT = 30 * time.Second
+	TIMEOUT = 60 * time.Second
 )
 
 type Actor struct {
@@ -64,13 +64,17 @@ func subscribe(ctx actor.Context, evs *eventstream.EventStream) *eventstream.Sub
 }
 
 func (a *Actor) Receive(ctx actor.Context) {
-	fmt.Printf("message: %q --> %q, %T\n", func() string {
-		if ctx.Sender() == nil {
-			return ""
-		} else {
-			return ctx.Sender().GetId()
-		}
-	}(), ctx.Self().GetId(), ctx.Message())
+	switch ctx.Message().(type) {
+	case *tickmsg:
+	default:
+		fmt.Printf("message: %q --> %q, %T\n", func() string {
+			if ctx.Sender() == nil {
+				return ""
+			} else {
+				return ctx.Sender().GetId()
+			}
+		}(), ctx.Self().GetId(), ctx.Message())
+	}
 	switch msg := ctx.Message().(type) {
 	case *actor.Started:
 
@@ -308,6 +312,14 @@ func (a *Actor) Receive(ctx actor.Context) {
 		}
 	case *gwiotmsg.Connected:
 		a.connected = true
+		if a.pidNats != nil {
+			// TODO: remove IncludeHistory
+			ctx.Send(ctx.Self(), &gwiotmsg.WatchKeyValue{
+				Bucket:         constan.SUBJECT_SVC_MODS,
+				Key:            a.id,
+				IncludeHistory: true,
+			})
+		}
 		a.evs.Publish(&MsgStatus{
 			State: true,
 		})
@@ -332,9 +344,10 @@ func (a *Actor) Receive(ctx actor.Context) {
 
 	case *gwiotmsg.WatchMessage:
 		fmt.Printf("watch message: %q (%q)\n", msg.GetKvEntryMessage().GetBucket(), msg.GetKvEntryMessage().GetKey())
-		if !a.connected {
-			ctx.Send(ctx.Self(), &gwiotmsg.Connected{})
-		}
+		// ?????????????????
+		// if !a.connected {
+		// 	ctx.Send(ctx.Self(), &gwiotmsg.Connected{})
+		// }
 		mss := msg.GetKvEntryMessage()
 		if a.lastvalue != nil && a.lastvalue.Rev == mss.Rev {
 			logs.LogWarn.Printf("same Rev in message: %d", mss.Rev)
@@ -388,7 +401,7 @@ func (a *Actor) Receive(ctx actor.Context) {
 type tickmsg struct{}
 
 func tick(contxt context.Context, ctx actor.Context, timeout time.Duration) {
-	initial := time.NewTimer(3 * time.Second)
+	initial := time.NewTimer(10 * time.Second)
 	defer initial.Stop()
 
 	ticker := time.NewTicker(timeout)
