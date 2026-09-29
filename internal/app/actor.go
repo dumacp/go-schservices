@@ -32,6 +32,9 @@ type Actor struct {
 	contxt    context.Context
 	dataActor actor.Actor
 	cancel    func()
+
+	dailySvcCacheData []byte
+	dailySvcCacheTime time.Time
 }
 
 func NewActor(id, urlrest string, data actor.Actor) actor.Actor {
@@ -112,43 +115,55 @@ func (a *Actor) Receive(ctx actor.Context) {
 			a.pidData = nil
 		}
 	case *services.RequestStatusSch:
+	case *dailySvcCacheMsg:
+		a.dailySvcCacheData = make([]byte, len(msg.Data))
+		copy(a.dailySvcCacheData, msg.Data)
+		a.dailySvcCacheTime = time.Now()
 	case *services.GetCompanyDriverMsg:
-		fmt.Printf("get company drivers: %v\n", msg)
-		if ctx.Sender() == nil {
-			break
-		}
-		if len(msg.GetCompanyId()) == 0 {
-			ctx.Respond(fmt.Errorf("error: company id not found"))
-		}
-		if len(msg.GetDriverDoc()) == 0 {
-			ctx.Respond(fmt.Errorf("error: driver doc not found"))
-		}
-		if a.pidData == nil {
-			ctx.Respond(fmt.Errorf("error: data actor not found"))
-			break
-		}
-		res, err := ctx.RequestFuture(a.pidData, &gwiotmsg.GetKeyValue{
-			Key:    msg.GetDriverDoc(),
-			Bucket: fmt.Sprintf("%s%s", msg.GetCompanyId(), constan.SUBJECT_SVC_COMPNAY_DRIVER),
-		}, 3*time.Second).Result()
-		if err != nil {
-			ctx.Respond(err)
-			break
-		}
-		switch res := res.(type) {
-		case *gwiotmsg.KvEntryMessage:
-			// values := make([]*services.ScheduleService, 0)
-			val := new(services.Driver)
-			if err := json.Unmarshal(res.Data, &val); err != nil {
-				fmt.Printf("error unmarshal: %s, data: %s\n", err, res.Data)
-				ctx.Respond(err)
-				break
+
+		if err := func() error {
+			fmt.Printf("get company drivers: %v\n", msg)
+			if ctx.Sender() == nil {
+				return nil
 			}
-			ctx.Respond(&services.CompanyDriverMsg{
-				Driver: val,
-			})
-		default:
-			ctx.Respond(fmt.Errorf("error response: %T", res))
+			if len(msg.GetCompanyId()) == 0 {
+				ctx.Respond(fmt.Errorf("error: company id not found"))
+				return fmt.Errorf("error: company id not found")
+			}
+			if len(msg.GetDriverDoc()) == 0 {
+				ctx.Respond(fmt.Errorf("error: driver doc not found"))
+				return fmt.Errorf("error: driver doc not found")
+			}
+			if a.pidData == nil {
+				ctx.Respond(fmt.Errorf("error: data actor not found"))
+				return fmt.Errorf("error: data actor not found")
+			}
+			res, err := ctx.RequestFuture(a.pidData, &gwiotmsg.GetKeyValue{
+				Key:    msg.GetDriverDoc(),
+				Bucket: fmt.Sprintf("%s%s", msg.GetCompanyId(), constan.SUBJECT_SVC_COMPNAY_DRIVER),
+			}, 3*time.Second).Result()
+			if err != nil {
+				ctx.Respond(err)
+				return fmt.Errorf("error request: %s", err)
+			}
+			switch res := res.(type) {
+			case *gwiotmsg.KvEntryMessage:
+				// values := make([]*services.ScheduleService, 0)
+				val := new(services.Driver)
+				if err := json.Unmarshal(res.Data, &val); err != nil {
+
+					ctx.Respond(err)
+					return fmt.Errorf("error unmarshal: %s, data: %s", err, res.Data)
+				}
+				ctx.Respond(&services.CompanyDriverMsg{
+					Driver: val,
+				})
+			default:
+				ctx.Respond(fmt.Errorf("error response: %T", res))
+			}
+			return nil
+		}(); err != nil {
+			fmt.Printf("error get company drivers: %s\n", err)
 		}
 	case *services.StartServiceMsg:
 		fmt.Printf("start service: %v\n", msg)
@@ -904,6 +919,44 @@ func (a *Actor) Receive(ctx actor.Context) {
 			})
 		}
 
+	case *services.GetDriverDailyServicesMsg:
+		fmt.Printf("get driver daily services: %v\n", msg)
+		sender := ctx.Sender()
+		if sender == nil {
+			break
+		}
+		if msg.GetDriverId() == "" || msg.GetDeviceId() == "" {
+			ctx.Respond(fmt.Errorf("deviceId and driverId are required"))
+			break
+		}
+		// Cache: si hay datos vigentes (<5 min), devolver sin llamar API
+		if a.dailySvcCacheData != nil && time.Since(a.dailySvcCacheTime) < 5*time.Minute {
+			respData := make([]byte, len(a.dailySvcCacheData))
+			copy(respData, a.dailySvcCacheData)
+			ctx.Respond(&services.DriverDailyServicesResponseMsg{
+				Data: respData,
+			})
+			break
+		}
+		root := ctx.ActorSystem().Root
+		self := ctx.Self()
+		go func() {
+			data, err := fetchDriverDailyServices(msg.GetDeviceId(), msg.GetDriverId())
+			if err != nil {
+				root.Send(sender, &services.DriverDailyServicesResponseMsg{
+					Error: err.Error(),
+				})
+				return
+			}
+			// Actualizar cache desde el actor (seguro contra concurrencia)
+			root.Send(self, &dailySvcCacheMsg{Data: data})
+
+			respData := make([]byte, len(data))
+			copy(respData, data)
+			root.Send(sender, &services.DriverDailyServicesResponseMsg{
+				Data: respData,
+			})
+		}()
 	}
 }
 

@@ -48,3 +48,7 @@ type MsgLiveServiceData struct {
 type MsgStatus struct {
 	State bool
 }
+
+type dailySvcCacheMsg struct {
+	Data []byte
+}

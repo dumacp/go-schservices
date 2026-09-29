@@ -186,3 +186,13 @@ message serviceSummaryMsg {
 	serviceSummary summary = 1;
 	string error = 2;
 }
+
+message getDriverDailyServicesMsg {
+	string deviceId = 1;
+	string driverId = 2;
+}
+
+message driverDailyServicesResponseMsg {
+	bytes data = 1;
+	string error = 2;
+}
